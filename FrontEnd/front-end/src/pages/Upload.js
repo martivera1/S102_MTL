@@ -5,7 +5,7 @@ function Upload() {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        fetch("http://localhost:5000/upload", {
+        fetch("/upload", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
