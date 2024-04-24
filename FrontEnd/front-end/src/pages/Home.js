@@ -6,11 +6,7 @@ function Home() {
     const [error, setError] = useState("");
 
     useEffect(() => {
-<<<<<<< HEAD
         fetch("/home")
-=======
-        fetch("http://localhost:5000/home")
->>>>>>> 78d7a46286421e4d321fb988c8d86fa7a83c63c3
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Network response was not ok");
@@ -23,7 +19,7 @@ function Home() {
 
     return (
         <div>
-            <Card></Card>
+            
         </div>
     );
 }

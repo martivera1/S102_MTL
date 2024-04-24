@@ -1,21 +1,12 @@
 import React, { useEffect, useState } from "react";
+import Card from "../components/Card";
 
 function Upload() {
     const [uploadMessage, setUploadMessage] = useState("");
     const [error, setError] = useState("");
 
     useEffect(() => {
-<<<<<<< HEAD
-        fetch("/upload", {
-=======
-        fetch("http://localhost:5000/upload", {
->>>>>>> 78d7a46286421e4d321fb988c8d86fa7a83c63c3
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({}),
-        })
+        fetch("/upload")
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Network response was not ok");
@@ -28,8 +19,7 @@ function Upload() {
 
     return (
         <div>
-            <h1>/upload Message: {uploadMessage}</h1>
-            {error && <p>Error: {error}</p>}
+            <Card></Card>
         </div>
     );
 }

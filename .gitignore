@@ -1,55 +1,36 @@
-venv/Scripts/python.exe
-
-# Node Modules
-node_modules/
-
-# Compiled files
-*.log
+# Python
 *.pyc
 *.pyo
 *.pyd
 __pycache__/
+*.log
 
-# Environment
-.env
-.env.local
+# Flask
 venv/
-
-# Flask instance folder
 instance/
-
-# SQLite database
 *.sqlite3
-
-# IDE/Editor files
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Flask project specific
 *.pyc
 *.pyo
 *.egg-info/
 *.egg
-*.egg-info
 *.exe
 *.db
+
+# Node.js
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# IDE/Editor
+.idea/
+.vscode/
 
 # Others
 *.bak
 *.swp
 *.swo
-
-# Temporary files
 *.tmp
-*.bak
-*.swp
-*.swo
-*.log
 *.rej
 *.orig
-*.bak
-*.swp
-*.swo
-
