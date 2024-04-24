@@ -1,6 +1,6 @@
 import React from 'react'
-import Image1 from '../images/pdf_image.png'
-import Image2 from '../images/url_image.png'
+import Image1 from '../static/images/pdf_image.png'
+import Image2 from '../static/images/url_image.png'
 
 const ListedPiece = ({title, type, size}) => {
   return (
