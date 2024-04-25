@@ -1,0 +1,36 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.log
+
+# Flask
+venv/
+instance/
+*.sqlite3
+*.pyc
+*.pyo
+*.egg-info/
+*.egg
+*.exe
+*.db
+
+# Node.js
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# IDE/Editor
+.idea/
+.vscode/
+
+# Others
+*.bak
+*.swp
+*.swo
+*.tmp
+*.rej
+*.orig
