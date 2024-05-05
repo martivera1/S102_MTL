@@ -18,8 +18,10 @@ function Upload() {
     }, []);
 
     return (
-        <div>
-            <Card></Card>
+        <div className="flex justify-center items-center">
+            <div className="max-w-6xl w-full">
+                <Card></Card>
+            </div>
         </div>
     );
 }
