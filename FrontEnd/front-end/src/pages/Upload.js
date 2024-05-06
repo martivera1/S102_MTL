@@ -17,10 +17,40 @@ function Upload() {
             .catch((error) => setError(error.message));
     }, []);
 
+    // Aixo es temporal mentre no tinguem crides a la BBDD
+    const pieces = [{
+            title: "Song.pdf",
+            size: "1.2 KB",
+            type: "pdf"
+        },
+        {
+            title: "Video.mp4",
+            size: "4.7 MB",
+            type: "video"
+        },
+        {
+            title: "https://www.youtube.com/",
+            size: "watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
+            type: "url"
+        }, {
+            title: "Song.pdf",
+            size: "1.2 KB",
+            type: "pdf"
+        }, {
+            title: "Video.mp4",
+            size: "4.7 MB",
+            type: "video"
+        }, {
+            title: "https://www.youtube.com/",
+            size: "watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
+            type: "url"
+        }
+    ];
+
     return (
         <div className="flex justify-center items-center">
             <div className="max-w-6xl w-full">
-                <Card></Card>
+                <Card pieces={pieces}></Card>
             </div>
         </div>
     );
