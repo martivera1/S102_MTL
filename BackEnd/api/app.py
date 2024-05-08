@@ -6,10 +6,10 @@ app = Flask(__name__)
 def get_db():
     if 'db' not in g:
         g.db = mysql.connector.connect(
-            host="localhost",
-            user="your_username",
-            password="your_password",
-            database="your_database"
+            host="127.0.0.1",
+            user="root",
+            password="root",
+            database="pianoclassification"
         )
     return g.db
 
@@ -23,8 +23,6 @@ def close_db(error):
 def home():
     return 'Hello, World!'
 
-if __name__ == '__main__':
-    app.run(debug=True)
 
 @app.route('/users/<int:user_id>')
 def get_user():
@@ -39,6 +37,12 @@ def get_user():
 def get_allrankings():
     db = get_db()
     cursor = db.cursor()
-    cursor.execute("SELECT username FROM users", (user_id,))
-    user = cursor.fetchall()
-    return str(user)  # You might want to format the output more nicely.
+    cursor.execute("SELECT ID, email FROM users")
+    users = cursor.fetchall()
+    print(users)
+    return str(users)  # You might want to format the output more nicely.
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
