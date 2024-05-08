@@ -1,14 +1,12 @@
-from flask import Flask, send_from_directory
+from flask import Flask, jsonify
+from flask_cors import CORS
+from .routes import api_bp
 
-app = Flask(__name__, static_folder='frontend/build', static_url_path='')
+app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve(path):
-    if path != "" and path != "favicon.ico":
-        return send_from_directory(app.static_folder, 'index.html')
-    else:
-        return send_from_directory(app.static_folder, path)
+# Register the API Blueprint
+app.register_blueprint(api_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)

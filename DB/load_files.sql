@@ -9,7 +9,7 @@ IGNORE 1 LINES
 ;
 
 INSERT IGNORE INTO Obra(name, epoca, compositor, time)
-SELECT DISTINCT youtube_id, birth, firstname, audio_duration FROM ttm;
+SELECT DISTINCT music, birth, firstname, audio_duration FROM ttm;
 
 INSERT IGNORE INTO Video(youtube_path, name)
 SELECT DISTINCT youtube_id, music FROM ttm;
@@ -23,4 +23,3 @@ SELECT DISTINCT music FROM ttm;
 
 
 select @@datadir;
-select *from ranking;

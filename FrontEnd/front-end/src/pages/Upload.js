@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from "react";
-import Card from "../components/Card";
 
 function Upload() {
     const [uploadMessage, setUploadMessage] = useState("");
     const [error, setError] = useState("");
 
     useEffect(() => {
-        fetch("/upload")
+        fetch("/upload", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({}),
+        })
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Network response was not ok");
@@ -17,41 +22,10 @@ function Upload() {
             .catch((error) => setError(error.message));
     }, []);
 
-    // Aixo es temporal mentre no tinguem crides a la BBDD
-    const pieces = [{
-            title: "Song.pdf",
-            size: "1.2 KB",
-            type: "pdf"
-        },
-        {
-            title: "Video.mp4",
-            size: "4.7 MB",
-            type: "video"
-        },
-        {
-            title: "https://www.youtube.com/",
-            size: "watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
-            type: "url"
-        }, {
-            title: "Song.pdf",
-            size: "1.2 KB",
-            type: "pdf"
-        }, {
-            title: "Video.mp4",
-            size: "4.7 MB",
-            type: "video"
-        }, {
-            title: "https://www.youtube.com/",
-            size: "watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
-            type: "url"
-        }
-    ];
-
     return (
-        <div className="flex justify-center items-center">
-            <div className="max-w-6xl w-full">
-                <Card pieces={pieces}></Card>
-            </div>
+        <div>
+            <h1>/upload Message: {uploadMessage}</h1>
+            {error && <p>Error: {error}</p>}
         </div>
     );
 }

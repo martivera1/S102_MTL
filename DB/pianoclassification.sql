@@ -4,7 +4,7 @@ DEFAULT CHARACTER SET 'utf8mb4'
 DEFAULT COLLATE 'utf8mb4_general_ci';
 USE pianoclassification;
 
-DROP TABLE IF EXISTS ttm;
+DROP TABLE ttm;
 CREATE TABLE ttm (
 	surname VARCHAR (1000) NOT NULL,
     firstname VARCHAR (100) NOT NULL ,
@@ -16,43 +16,40 @@ CREATE TABLE ttm (
     youtube_id VARCHAR (100) NOT NULL,
     audio_name VARCHAR (500),
     audio_duration BIGINT
+    
 );
 
-DROP TABLE IF EXISTS Obra;
+DROP TABLE Obra;
 CREATE TABLE Obra(
-	id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(100),
+	name VARCHAR(100),
     epoca Varchar (50), 
     compositor VARCHAR(100),
     piano_roll VARCHAR(500),
     descriptors FLOAT,
-    time BIGINT,
-    PRIMARY KEY (id)
+    time BIGINT
+    
 );
 
-DROP TABLE IF EXISTS Partitura;
+DROP TABLE Partitura;
 CREATE TABLE Partitura(
-	id INT NOT NULL AUTO_INCREMENT,
 	pdf_path VARCHAR(200),
     name VARCHAR(100),
     
-    FOREIGN KEY (id) REFERENCES Obra(id),
+    FOREIGN KEY (name) REFERENCES Obra(name),
     PRIMARY KEY (pdf_path)
 );
 
-DROP TABLE IF EXISTS Video;
+DROP TABLE Video;
 CREATE TABLE Video(
-	id INT NOT NULL AUTO_INCREMENT,
 	youtube_path VARCHAR(200),
     name VARCHAR(100),
     
-    FOREIGN KEY (id) REFERENCES Obra(id),
+    FOREIGN KEY (name) REFERENCES Obra(name),
     PRIMARY KEY (youtube_path)
 );
 
 CREATE INDEX idx_name ON Video(name);
 
-DROP TABLE IF EXISTS Users;
 CREATE TABLE Users(
 	ID INT NOT NULL AUTO_INCREMENT,
 	email VARCHAR(200),
@@ -60,7 +57,7 @@ CREATE TABLE Users(
 	PRIMARY KEY (ID)
 );
 
-DROP TABLE IF EXISTS Ranking;
+DROP TABLE Ranking;
 CREATE TABLE Ranking(
 	ranking INT NOT NULL AUTO_INCREMENT,
 	name VARCHAR(100),
@@ -70,7 +67,7 @@ CREATE TABLE Ranking(
 
 	PRIMARY KEY (ranking),
 	FOREIGN KEY (ID) REFERENCES Users(ID),
-	FOREIGN KEY (ID) REFERENCES Obra(id)
+	FOREIGN KEY (name) REFERENCES Obra(name)
 );
 
 
