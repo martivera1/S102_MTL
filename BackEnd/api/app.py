@@ -34,3 +34,11 @@ def get_user():
     cursor.execute("SELECT username FROM users WHERE ID = %s", (user_id,))
     user = cursor.fetchall()
     return str(user)  # You might want to format the output more nicely.
+
+@app.route('/allrankings')
+def get_allrankings():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT username FROM users", (user_id,))
+    user = cursor.fetchall()
+    return str(user)  # You might want to format the output more nicely.
