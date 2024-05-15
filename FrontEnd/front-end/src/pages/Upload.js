@@ -45,7 +45,7 @@ function Upload() {
             size: "watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
             type: "url"
         }
-    ];
+    ].map((piece, index) => ({ ...piece, id: String(index) }));;
 
     return (
         <div className="flex justify-center items-center">
