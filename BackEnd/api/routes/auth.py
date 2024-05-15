@@ -54,7 +54,6 @@ def callback():
     if not email:
         return 'Access denied: Email address not provided by Google.'
 
-
     db = get_db()
     cursor = db.cursor()
     
@@ -71,8 +70,7 @@ def callback():
     
     session['user_id'] = user[0]
 
-
-    return jsonify(userinfo.data)
+    return redirect('/')
 
 @google.tokengetter
 def get_google_oauth_token():

@@ -1,5 +1,7 @@
+from flask import jsonify, session, request
+from functools import wraps
+from db import get_db
 
-@app.route('/upload_link', methods=['POST'])
 def upload_link():
     if request.method == 'POST':
         
@@ -20,7 +22,6 @@ def upload_link():
     else:
         return 'There was an error uploading the link'
 
-@app.route('/modify_link', methods=['PUT'])
 def modify_link():
     if request.method == 'PUT':
         old_link = request.args.get('old_link')
@@ -43,7 +44,6 @@ def modify_link():
     else:
         return jsonify({'error': 'Method not allowed'}), 405
 
-@app.route('/delete_link', methods=['DELETE'])
 def delete_link():
     if request.method == 'DELETE':
         old_link = request.args.get('old_link')
@@ -59,7 +59,6 @@ def delete_link():
     else:
         return jsonify({'error': 'Method not allowed'}), 405
 
-@app.route('/generate_ranking', methods=['POST'])
 def generate_ranking():
     if request.method == 'POST':
         
@@ -91,3 +90,9 @@ def generate_ranking():
         return jsonify({'message': 'Ranking generated succesfully'})
     else:
         return jsonify({'error': 'Method not allowed'}), 405
+
+def init_app(app):
+    app.route('/upload_link', methods=['POST'])(upload_link)
+    app.route('/modify_link', methods=['PUT'])(modify_link)
+    app.route('/delete_link', methods=['DELETE'])(delete_link)
+    app.route('/generate_ranking', methods=['POST'])(generate_ranking)

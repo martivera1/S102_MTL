@@ -8,16 +8,20 @@ from config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 from db import get_db, close_db
 from routes.auth import login_required, callback
 from routes.auth import init_app as init_auth
+from routes.ranking import init_app as init_ranking
+
 
 app = Flask(__name__)
 
 init_auth(app)
+init_ranking(app)
 
 app.secret_key = 'pianoclassification_app_key'
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1" # to allow Http traffic for local dev
 
 @app.route('/', methods=['GET'])
+@login_required
 def home():
     return 'Hello, World!'
 
