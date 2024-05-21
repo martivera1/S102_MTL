@@ -9,12 +9,14 @@ from db import get_db, close_db
 from routes.auth import login_required, callback
 from routes.auth import init_app as init_auth
 from routes.ranking import init_app as init_ranking
+from routes.users import init_app as init_users
 
 
 app = Flask(__name__)
 
 init_auth(app)
 init_ranking(app)
+init_users(app)
 
 app.secret_key = 'pianoclassification_app_key'
 
@@ -24,16 +26,6 @@ os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1" # to allow Http traffic for loca
 @login_required
 def home():
     return 'Hello, World!'
-
-@login_required
-@app.route('/users/<int:user_id>', methods=['GET'])
-def get_user():
-    print("inside")
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute("SELECT username FROM users WHERE ID = %s", (user_id,))
-    user = cursor.fetchall()
-    return str(user)  # You might want to format the output more nicely.
 
 @app.route('/obras', methods=['GET'])
 @login_required
