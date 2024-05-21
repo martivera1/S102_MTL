@@ -1,7 +1,9 @@
 from flask import jsonify, session, request
 from functools import wraps
 from db import get_db
+from routes.auth import login_required
 
+@login_required
 def upload_link():
     if request.method == 'POST':
         
@@ -22,6 +24,7 @@ def upload_link():
     else:
         return 'There was an error uploading the link'
 
+@login_required
 def modify_link():
     if request.method == 'PUT':
         old_link = request.args.get('old_link')
@@ -44,6 +47,7 @@ def modify_link():
     else:
         return jsonify({'error': 'Method not allowed'}), 405
 
+@login_required
 def delete_link():
     if request.method == 'DELETE':
         old_link = request.args.get('old_link')
@@ -59,6 +63,7 @@ def delete_link():
     else:
         return jsonify({'error': 'Method not allowed'}), 405
 
+@login_required
 def generate_ranking():
     if request.method == 'POST':
         
@@ -91,8 +96,35 @@ def generate_ranking():
     else:
         return jsonify({'error': 'Method not allowed'}), 405
 
+@login_required
+def get_allrankings():
+    db = get_db()
+    cursor = db.cursor()
+    query = """
+    SELECT r.ranking, r.name, r.star, r.description, u.email, o.name
+    FROM Ranking r
+    JOIN Users u ON r.ID = u.ID
+    JOIN Obra o ON r.ID = o.id;
+    """
+    cursor.execute(query)
+    rankings = cursor.fetchall()
+
+    result = []
+    for ranking in rankings:
+        result.append({
+            'ranking': ranking[0],
+            'name': ranking[1],
+            'star': ranking[2],
+            'description': ranking[3],
+            'email': ranking[4],
+            'obra_name': ranking[5],
+        })
+    
+    return jsonify(result)
+
 def init_app(app):
     app.route('/upload_link', methods=['POST'])(upload_link)
     app.route('/modify_link', methods=['PUT'])(modify_link)
     app.route('/delete_link', methods=['DELETE'])(delete_link)
     app.route('/generate_ranking', methods=['POST'])(generate_ranking)
+    app.route('/allrankings', methods=['GET'])(get_allrankings)

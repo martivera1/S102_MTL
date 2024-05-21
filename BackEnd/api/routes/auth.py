@@ -72,6 +72,23 @@ def callback():
 
     return redirect('/')
 
+def get_users():
+    db = get_db()
+    cursor = db.cursor()
+    query = "SELECT ID, email FROM Users"
+    cursor.execute(query)
+    users = cursor.fetchall()
+
+    result = []
+    for user in users:
+        result.append({
+            'ID': user[0],
+            'email': user[1]
+        })
+
+    cursor.close()
+    return jsonify(result)
+
 @google.tokengetter
 def get_google_oauth_token():
     return session.get('google_token')
@@ -80,3 +97,4 @@ def init_app(app):
     app.route('/login')(login)
     app.route('/logout')(logout)
     app.route('/callback')(callback)
+    app.route('/users', methods=['GET'])(get_users)

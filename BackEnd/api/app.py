@@ -35,33 +35,6 @@ def get_user():
     user = cursor.fetchall()
     return str(user)  # You might want to format the output more nicely.
 
-@login_required
-@app.route('/allrankings', methods=['GET'])
-def get_allrankings():
-    db = get_db()
-    cursor = db.cursor()
-    query = """
-    SELECT r.ranking, r.name, r.star, r.description, u.email, o.name
-    FROM Ranking r
-    JOIN Users u ON r.ID = u.ID
-    JOIN Obra o ON r.ID = o.id;
-    """
-    cursor.execute(query)
-    rankings = cursor.fetchall()
-
-    result = []
-    for ranking in rankings:
-        result.append({
-            'ranking': ranking[0],
-            'name': ranking[1],
-            'star': ranking[2],
-            'description': ranking[3],
-            'email': ranking[4],
-            'obra_name': ranking[5],
-        })
-    
-    return jsonify(result)
-
 @app.route('/obras', methods=['GET'])
 @login_required
 def get_all_obras():
