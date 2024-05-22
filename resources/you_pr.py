@@ -2,7 +2,7 @@ from pytube import YouTube
 from piano_transcription_inference import PianoTranscription, sample_rate, load_audio
 import librosa
 import torch
-
+import time
 
 def descargar_audio(url):
     youtube = YouTube(url)
@@ -11,6 +11,9 @@ def descargar_audio(url):
 
 #URL del video de Youtube
 url= 'https://www.youtube.com/watch?v=3hOP7qPDyI4'
+
+# Mide el tiempo inicial
+start_time = time.time()
 
 #Descarga el audio del video de Youtube
 descargar_audio(url)
@@ -25,3 +28,9 @@ transcriptor = PianoTranscription(device=device)    # 'cuda' | 'cpu'
 
 # Transcribe and write out to MIDI file
 transcribed_dict = transcriptor.transcribe(audio, '/mnt/c/Users/marti/Desktop/piano_roll.midi')
+
+# Mide el tiempo final
+end_time = time.time()
+
+# Calcula y muestra el tiempo total
+print(f"Tiempo total: {end_time - start_time:.2f} segundos")
