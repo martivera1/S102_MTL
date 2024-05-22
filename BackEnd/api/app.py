@@ -3,13 +3,11 @@ import mysql.connector
 import json
 import os
 from functools import wraps
-from flask_oauthlib.client import OAuth
-from config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
-from db import get_db, close_db
-from routes.auth import login_required, callback
-from routes.auth import init_app as init_auth
-from routes.ranking import init_app as init_ranking
-from routes.users import init_app as init_users
+from api.db.db import get_db, close_db
+from api.routes.auth import login_required, callback
+from api.routes.auth import init_app as init_auth
+from api.routes.ranking import init_app as init_ranking
+from api.routes.users import init_app as init_users
 
 
 app = Flask(__name__)

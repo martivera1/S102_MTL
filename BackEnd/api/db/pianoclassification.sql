@@ -20,33 +20,33 @@ CREATE TABLE ttm (
 
 DROP TABLE IF EXISTS Obra;
 CREATE TABLE Obra(
-	id INT NOT NULL AUTO_INCREMENT,
+	id_obra INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(100),
     epoca Varchar (50), 
     compositor VARCHAR(100),
     piano_roll VARCHAR(500),
     descriptors FLOAT,
     time BIGINT,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id_obra)
 );
 
 DROP TABLE IF EXISTS Partitura;
 CREATE TABLE Partitura(
-	id INT NOT NULL AUTO_INCREMENT,
+	id_partitura INT NOT NULL AUTO_INCREMENT,
 	pdf_path VARCHAR(200),
     name VARCHAR(100),
     
-    FOREIGN KEY (id) REFERENCES Obra(id),
+    FOREIGN KEY (id_partitura) REFERENCES Obra(id_obra),
     PRIMARY KEY (pdf_path)
 );
 
 DROP TABLE IF EXISTS Video;
 CREATE TABLE Video(
-	id INT NOT NULL AUTO_INCREMENT,
+	id_video INT NOT NULL AUTO_INCREMENT,
 	youtube_path VARCHAR(200),
     name VARCHAR(100),
     
-    FOREIGN KEY (id) REFERENCES Obra(id),
+    FOREIGN KEY (id_video) REFERENCES Obra(id_obra),
     PRIMARY KEY (youtube_path)
 );
 
@@ -54,23 +54,50 @@ CREATE INDEX idx_name ON Video(name);
 
 DROP TABLE IF EXISTS Users;
 CREATE TABLE Users(
-	IDranking INT NOT NULL AUTO_INCREMENT,
+	id_user INT NOT NULL AUTO_INCREMENT,
 	email VARCHAR(200),
 
-	PRIMARY KEY (ID)
+	PRIMARY KEY (id_user)
 );
 
 DROP TABLE IF EXISTS Ranking;
 CREATE TABLE Ranking(
-	ranking INT NOT NULL AUTO_INCREMENT,
+	id_ranking INT NOT NULL AUTO_INCREMENT,
 	name VARCHAR(100),
 	star INT, 
 	description VARCHAR(500), 
-	ID INT,
+	user_id INT,
+    obra_id INT,
 
-	PRIMARY KEY (ranking),
-	FOREIGN KEY (ID) REFERENCES Users(ID),
-	FOREIGN KEY (ID) REFERENCES Obra(id)
+	PRIMARY KEY (id_ranking, id_obra),
+	FOREIGN KEY (user_id) REFERENCES Users(id_user),
+	FOREIGN KEY (obra_id) REFERENCES Obra(id_obra)
 );
+
+USE pianoclassification;
+
+LOAD DATA INFILE 'cleaned_data_new.csv'
+INTO TABLE ttm
+COLUMNS TERMINATED BY ';' 
+OPTIONALLY ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+;
+
+INSERT IGNORE INTO Obra(name, epoca, compositor, time)
+SELECT DISTINCT youtube_id, birth, firstname, audio_duration FROM ttm;
+
+INSERT IGNORE INTO Video(youtube_path, name)
+SELECT DISTINCT youtube_id, music FROM ttm;
+
+INSERT IGNORE INTO Partitura( name)
+SELECT DISTINCT music FROM ttm;
+
+#INSERT IGNORE INTO Partitura (name)
+#SELECT DISTINCT name FROM Obra
+#;
+
+select @@datadir;
+select *from ranking;
 
 

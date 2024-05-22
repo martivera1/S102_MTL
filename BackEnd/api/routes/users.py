@@ -1,8 +1,7 @@
-from flask_oauthlib.client import OAuth
 from functools import wraps
 from flask import session, redirect, request, jsonify
-from db import get_db
-from routes.auth import login_required
+from api.db.db import get_db
+from api.routes.auth import login_required
 
 # @login_required
 def get_user():
