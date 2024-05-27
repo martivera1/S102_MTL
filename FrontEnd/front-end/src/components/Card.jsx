@@ -19,7 +19,7 @@ const Card = ({pieces: initialPieces}) => {
     <DragDropContext onDragEnd={handleDragEnd}>
       <Droppable droppableId="pieces">
         {(provided) => (
-          <div className='flex bg-white rounded-3xl mx-32 my-20 flex-col font-roboto shadow-2xl' {...provided.droppableProps} ref={provided.innerRef}>
+          <div className='flex bg-white rounded-3xl mx-32 my-10 flex-col font-roboto shadow-2xl' {...provided.droppableProps} ref={provided.innerRef}>
             <input type="text" placeholder='Paste Link...' className='bg-grey mt-12 bg-slate-100 px-3 py-5 rounded-md mx-12 mb-8 h-8 outline-none'/>
             <div className='flex align-middle justify-center items-center flex-col'>
                 <p className='mb-3'>Select the type of Link you want to load:</p>
