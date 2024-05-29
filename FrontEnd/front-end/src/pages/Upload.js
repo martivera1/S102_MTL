@@ -49,7 +49,7 @@ function Upload() {
 
     return (
         <div className="flex justify-center items-center">
-            <div className="max-w-6xl w-full">
+            <div className=" w-full">
                 <Card pieces={pieces} />
             </div>
         </div>
