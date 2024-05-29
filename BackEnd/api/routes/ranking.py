@@ -1,7 +1,7 @@
 from flask import jsonify, session, request
 from functools import wraps
-from api.db import get_db
-from api.routes.auth import login_required
+from db.db import get_db
+from routes.auth import login_required
 
 # @login_required
 def upload_link():

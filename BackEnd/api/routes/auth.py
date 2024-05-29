@@ -1,8 +1,8 @@
 from authlib.integrations.flask_client import OAuth
 from functools import wraps
 from flask import session, redirect, request, jsonify
-from api.config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
-from api.db.db import get_db
+from config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+from db.db import get_db
 
 oauth = OAuth()
 

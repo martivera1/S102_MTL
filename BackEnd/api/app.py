@@ -2,12 +2,14 @@ from flask import Flask, jsonify, g, session, redirect
 import mysql.connector
 import json
 import os
+import sys
 from functools import wraps
-from api.db.db import get_db, close_db
-from api.routes.auth import login_required, callback
-from api.routes.auth import init_app as init_auth
-from api.routes.ranking import init_app as init_ranking
-from api.routes.users import init_app as init_users
+
+from db.db import get_db, close_db
+from routes.auth import login_required, callback
+from routes.auth import init_app as init_auth
+from routes.ranking import init_app as init_ranking
+from routes.users import init_app as init_users
 
 
 app = Flask(__name__)
@@ -48,6 +50,5 @@ def get_all_obras():
     
     return jsonify(result)
 
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='172.17.0.2', port=5000)
