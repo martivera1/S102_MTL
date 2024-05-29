@@ -6,7 +6,7 @@ USE pianoclassification;
 
 DROP TABLE IF EXISTS ttm;
 CREATE TABLE ttm (
-	surname VARCHAR (1000) NOT NULL,
+    surname VARCHAR (1000) NOT NULL,
     firstname VARCHAR (100) NOT NULL ,
     music VARCHAR (900) NOT NULL,
     nationality VARCHAR (100),
@@ -20,7 +20,7 @@ CREATE TABLE ttm (
 
 DROP TABLE IF EXISTS Obra;
 CREATE TABLE Obra(
-    id_obra INT NOT NULL AUTO_INCREMENT,
+	id_obra INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(100),
     epoca Varchar (50), 
     compositor VARCHAR(100),
@@ -70,7 +70,7 @@ CREATE TABLE Ranking(
 	star INT, 
 	description VARCHAR(500), 
 	user_id INT,
-    obra_id INT,
+        obra_id INT,
 
 	PRIMARY KEY (id_ranking, id_obra),
 	FOREIGN KEY (user_id) REFERENCES Users(id_user),
