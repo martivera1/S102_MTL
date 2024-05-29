@@ -20,12 +20,15 @@ CREATE TABLE ttm (
 
 DROP TABLE IF EXISTS Obra;
 CREATE TABLE Obra(
-	id_obra INT NOT NULL AUTO_INCREMENT,
+    id_obra INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(100),
     epoca Varchar (50), 
     compositor VARCHAR(100),
     piano_roll VARCHAR(500),
-    descriptors FLOAT,
+    descriptor VARCHAR(500),
+    atribut1 FLOAT,
+    atribut2 INT,
+    atribut3 INT,
     time BIGINT,
     PRIMARY KEY (id_obra)
 );
