@@ -4,6 +4,7 @@ from flask import session, redirect, request, jsonify
 from config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 from db.db import get_db
 
+# Create OAuth object
 oauth = OAuth()
 
 google = oauth.register(
@@ -68,6 +69,9 @@ def callback():
     return redirect('/')
 
 def init_app(app):
+    # Initialize OAuth with Flask app
+    oauth.init_app(app)
+
     app.route('/login')(login)
     app.route('/logout')(logout)
     app.route('/callback')(callback)

@@ -14,6 +14,10 @@ from routes.users import init_app as init_users
 
 app = Flask(__name__)
 
+from werkzeug.middleware.proxy_fix import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
+# Initialize blueprints or other app components
 init_auth(app)
 init_ranking(app)
 init_users(app)
@@ -51,4 +55,4 @@ def get_all_obras():
     return jsonify(result)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='172.17.0.2', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)

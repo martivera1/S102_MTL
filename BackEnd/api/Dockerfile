@@ -28,11 +28,11 @@ RUN chmod +x /entrypoint.sh
 # Expose Flask port
 EXPOSE 5000
 
-# Set the entrypoint
-ENTRYPOINT ["./entrypoint.sh", "--host=0.0.0.0"]
-
 # Add initialization SQL script
 ADD db/pianoclassification.sql /docker-entrypoint-initdb.d/
 
-# Start Flask and MySQL
-CMD python /api/app.py
+# Set the entrypoint
+ENTRYPOINT ["./entrypoint.sh"]
+
+# Start Flask
+CMD ["python", "app.py"]
