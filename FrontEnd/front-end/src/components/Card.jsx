@@ -20,14 +20,14 @@ const Card = ({ pieces: initialPieces }) => {
       <Droppable droppableId="pieces">
         {(provided) => (
           <div
-            className='flex bg-white rounded-3xl lg:w-[800px] md:w-[600px] sm:w-[400px] mx-auto my-10 flex-col font-roboto shadow-2xl'
+            className='flex bg-white rounded-3xl lg:w-[800px] md:w-[600px] sm:w-[400px] mx-auto my-[8vh] flex-col font-roboto shadow-2xl'
             {...provided.droppableProps}
             ref={provided.innerRef}
           >
             <input
               type="text"
               placeholder='Paste Link...'
-              className='bg-grey mt-12 bg-slate-100 px-3 py-5 rounded-md mx-8 mb-[2vh] h-8 outline-none'
+              className='bg-grey mt-[4vh] bg-slate-100 px-3 py-5 rounded-md mx-8 mb-[2vh] h-8 outline-none'
             />
             <div className='flex align-middle justify-center items-center flex-col'>
               <button className='bg-blue-600 rounded-lg px-8 py-1.5 text-white mr-4 mb-[2vh] hover:bg-blue-700 text-md'>

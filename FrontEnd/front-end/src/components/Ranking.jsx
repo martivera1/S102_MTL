@@ -9,11 +9,11 @@ const Ranking = ({ ranking }) => {
   }
 
   return (
-    <div className='flex justify-center items-center bg-white flex-col text-center p-4 rounded-2xl shadow-md'>
+    <div className='flex justify-center items-center bg-white flex-col text-center p-4 rounded-2xl shadow-md  hover:scale-105 hover:cursor-pointer'>
       <h1 className='text-xl font-bold'>{title}</h1>
       <p className="text-right text-gray-500">by {username}</p>
       <div className='bg-slate-200 w-full rounded-xl mt-1' style={{ height: '2px' }}></div>
-      <p className='mt-2 w-full max-w-sm bg-slate-100 p-1' style={{ overflowWrap: 'break-word' }}>
+      <p className='mt-2 w-full max-w-sm bg-slate-100 p-1 min-w-[380px] min-h-[80px]' style={{ overflowWrap: 'break-word' }}>
         {description}
       </p>
       <div className='flex items-center justify-between w-full mt-4'>

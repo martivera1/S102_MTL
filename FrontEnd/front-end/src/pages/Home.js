@@ -24,10 +24,10 @@ function Home() {
     // Aixo es temporal mentre no tinguem crides a la BBDD
     const rankings = [
         {
-            "title": "Top Hits of 2024",
-            "description": "Explore the most exciting and futuristic songs of the year. From spacey ballads to AI-generated beats, this ranking will immerse you in musical worlds beyond imagination.",
+            "title": "Top Big Black Cocks que he probat",
+            "description": "No em puc decidir, totes estàven boníssimes.",
             "userpic": Profile1,
-            "username": "musiclover456",
+            "username": "gerard",
             "stars": 4
         },
         {
