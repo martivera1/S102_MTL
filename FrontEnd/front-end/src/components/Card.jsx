@@ -27,14 +27,14 @@ const Card = ({ pieces: initialPieces }) => {
             <input
               type="text"
               placeholder='Paste Link...'
-              className='bg-grey mt-12 bg-slate-100 px-3 py-5 rounded-md mx-12 mb-[2vh] h-8 outline-none'
+              className='bg-grey mt-12 bg-slate-100 px-3 py-5 rounded-md mx-8 mb-[2vh] h-8 outline-none'
             />
             <div className='flex align-middle justify-center items-center flex-col'>
               <button className='bg-blue-600 rounded-lg px-8 py-1.5 text-white mr-4 mb-[2vh] hover:bg-blue-700 text-md'>
                 Upload Video
               </button>
             </div>
-            <div className='align-middle justify-center bg-slate-100 overflow-y-auto max-h-[40vh] mb-[3vh] mx-12 rounded-lg'>
+            <div className='align-middle justify-center bg-slate-100 overflow-y-auto max-h-[40vh] mb-[3vh] mx-8 rounded-lg'>
               {pieces.map((piece, index) => (
                 <ListedPiece
                   key={piece.id}
