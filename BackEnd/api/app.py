@@ -1,9 +1,12 @@
 from flask import Flask, jsonify, g, session, redirect
+from flask_session import Session
 import mysql.connector
 import json
 import os
 import sys
+import logging
 from functools import wraps
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from db.db import get_db, close_db
 from routes.auth import login_required, callback
@@ -11,10 +14,13 @@ from routes.auth import init_app as init_auth
 from routes.ranking import init_app as init_ranking
 from routes.users import init_app as init_users
 
-
 app = Flask(__name__)
 
-from werkzeug.middleware.proxy_fix import ProxyFix
+# Load configuration from the config file
+app.config.from_object('config.Config')
+
+Session(app)
+
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Initialize blueprints or other app components
@@ -22,9 +28,12 @@ init_auth(app)
 init_ranking(app)
 init_users(app)
 
-app.secret_key = 'pianoclassification_app_key'
+# app.secret_key = 'pianoclassification_app_key'
 
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1" # to allow Http traffic for local dev
+# os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1" # to allow Http traffic for local dev
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/', methods=['GET'])
 @login_required

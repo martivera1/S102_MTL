@@ -1,8 +1,12 @@
 from authlib.integrations.flask_client import OAuth
 from functools import wraps
 from flask import session, redirect, request, jsonify
+import logging
+from uuid import uuid4
+
 from config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 from db.db import get_db
+
 
 # Create OAuth object
 oauth = OAuth()
@@ -28,7 +32,16 @@ def login_required(f):
     return decorated_function
 
 def login():
-    return google.authorize_redirect()
+    # redirect_response = google.authorize_redirect()
+    # logging.debug(f"Generated state: {session.get('_google_authlib_state_')}")
+    # return redirect_response
+
+    # Generate a new UUID for the state
+    new_state = str(uuid4())
+    # Store the generated state in the session
+    session['_google_authlib_state_'] = new_state
+    # Redirect to the authorization URL with the generated state
+    return google.authorize_redirect(state=new_state)
 
 def logout():
     session.pop('google_token', None)
@@ -37,9 +50,17 @@ def logout():
     return redirect('/')
 
 def callback():
+    logging.debug(f"Request state: {request.args.get('state')}")
+    logging.debug(f"Session state: {session.get('_google_authlib_state_')}")
+
+    if session.get('_google_authlib_state_') != request.args.get('state'):
+        return 'State mismatch', 400
+
     token = google.authorize_access_token()
     if token is None or 'access_token' not in token:
         return 'Access denied'
+
+    logging.debug(f"Received token: {token}")
 
     session['google_token'] = (token['access_token'], '')
     userinfo = google.parse_id_token(token)
