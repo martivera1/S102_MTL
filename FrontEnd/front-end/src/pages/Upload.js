@@ -19,31 +19,25 @@ function Upload() {
 
     // Aixo es temporal mentre no tinguem crides a la BBDD
     const pieces = [{
-            title: "Song.pdf",
-            size: "1.2 KB",
-            type: "pdf"
+            title: "Youtube Song Example",
+            size: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
         },
         {
-            title: "Video.mp4",
-            size: "4.7 MB",
-            type: "video"
+            title: "Youtube Song Example",
+            size: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
         },
         {
-            title: "https://www.youtube.com/",
-            size: "watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
-            type: "url"
+            title: "Youtube Song Example",
+            size: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
         }, {
-            title: "Song.pdf",
-            size: "1.2 KB",
-            type: "pdf"
+            title: "Youtube Song Example",
+            size: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
         }, {
-            title: "Video.mp4",
-            size: "4.7 MB",
-            type: "video"
+            title: "Youtube Song Example",
+            size: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
         }, {
-            title: "https://www.youtube.com/",
-            size: "watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
-            type: "url"
+            title: "Youtube Song Example",
+            size: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
         }
     ].map((piece, index) => ({ ...piece, id: String(index) }));;
 

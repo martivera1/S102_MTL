@@ -1,9 +1,8 @@
-// ListedPiece.jsx
-import React from 'react'
-import HttpImage from '../static/images/http_icon.png'
+import React from 'react';
+import HttpImage from '../static/images/http_icon.png';
 import { Draggable } from 'react-beautiful-dnd';
 
-const ListedPiece = ({piece, index, total}) => {
+const ListedPiece = ({ piece, index }) => {
   return (
     <Draggable draggableId={piece.id} index={index}>
       {(provided) => (
@@ -15,13 +14,10 @@ const ListedPiece = ({piece, index, total}) => {
             <p className='font-roboto font-medium'>{piece.title}</p>
             <p className='font-roboto text-sm'>{piece.size}</p>
           </div>
-          <div className="flex ml-auto font-roboto flex-row items-center mr-3">
-            <p className='text-lg'>{index + 1}</p><p className='text-lg'>/</p><p className='text-lg '>{total}</p>
-          </div>
         </div>
       )}
     </Draggable>
-  )
-}
+  );
+};
 
 export default ListedPiece;
