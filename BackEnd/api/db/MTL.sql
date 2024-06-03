@@ -1,11 +1,9 @@
 set global local_infile=1;
-DROP SCHEMA IF EXISTS pianoclassifications;
-CREATE DATABASE IF NOT EXISTS pianoclassifications
+DROP SCHEMA IF EXISTS pianoclassification;
+CREATE DATABASE IF NOT EXISTS pianoclassification
 DEFAULT CHARACTER SET 'utf8mb4'
 DEFAULT COLLATE 'utf8mb4_general_ci';
-
 USE pianoclassification;
-
 DROP TABLE IF EXISTS ttm;
 CREATE TABLE ttm (
     surname VARCHAR (1000) NOT NULL,
@@ -68,16 +66,8 @@ CREATE TABLE Ranking(
     FOREIGN KEY (obra_id) REFERENCES Obra(id_obra)
 );
 
-DROP TABLE IF EXISTS temp_obra;
-CREATE TEMPORARY TABLE temp_obra (
-    name VARCHAR(255),
-    lz_complexity INT,
-    pitch_entropy FLOAT,
-    duration FLOAT
-);
-
 USE pianoclassification;
-LOAD DATA LOCAL INFILE '/api/db/cleaned_data.csv'
+LOAD DATA LOCAL INFILE 'C:\\Users\\marti\\Desktop\\actualized_data.csv'
 INTO TABLE ttm
 COLUMNS TERMINATED BY ';'
 OPTIONALLY ENCLOSED BY '"'
@@ -90,10 +80,10 @@ INSERT IGNORE INTO Video(youtube_path, name)
 SELECT DISTINCT youtube_id, music FROM ttm;
 INSERT IGNORE INTO Partitura( name)
 SELECT DISTINCT music FROM ttm;
--- INSERT IGNORE INTO Partitura (name)
--- SELECT DISTINCT name FROM Obra
-
-LOAD DATA LOCAL INFILE '/api/db/features.csv'
+#INSERT IGNORE INTO Partitura (name)
+#SELECT DISTINCT name FROM Obra
+#;
+LOAD DATA LOCAL INFILE 'C:\\Users\\marti\\Desktop\\features.csv'
 INTO TABLE temp_obra
 FIELDS TERMINATED BY ',' 
 LINES TERMINATED BY '\n'
@@ -106,3 +96,5 @@ SET
     o.atr_entropy = t.pitch_entropy,
     o.atr_duration = t.duration;
 
+select @@datadir;
+select * from obra ;
