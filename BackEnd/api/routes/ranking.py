@@ -77,7 +77,7 @@ def modify_link():
     else:
         return jsonify({'error': 'Method not allowed'}), 405
 
-@login_required
+# @login_required
 def delete_link():
     if request.method == 'DELETE':
         # Extract JSON data from request body
@@ -133,7 +133,7 @@ def generate_ranking():
         return jsonify({'error': 'Method not allowed'}), 405
 
 
-@login_required
+# @login_required
 def get_user_rankings():
 
     user_id = session.get('user_id')
@@ -163,7 +163,7 @@ def get_user_rankings():
     
     return jsonify(result)
 
-@login_required
+# @login_required
 def get_all_rankings():
     db = get_db()
     cursor = db.cursor()
@@ -189,7 +189,7 @@ def get_all_rankings():
     
     return jsonify(result)
 
-@login_required
+# @login_required
 def get_results():
 
     user_id = session.get('user_id')

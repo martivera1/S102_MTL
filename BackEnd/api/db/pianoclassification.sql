@@ -1,9 +1,9 @@
-DROP SCHEMA IF EXISTS pianoclassification_new;
-CREATE DATABASE IF NOT EXISTS pianoclassification_new
+DROP SCHEMA IF EXISTS pianoclassification;
+CREATE DATABASE IF NOT EXISTS pianoclassification
 DEFAULT CHARACTER SET 'utf8mb4'
 DEFAULT COLLATE 'utf8mb4_general_ci';
 
-USE pianoclassification_new;
+USE pianoclassification;
 
 DROP TABLE IF EXISTS ttm;
 CREATE TABLE ttm (
@@ -73,9 +73,9 @@ CREATE TABLE Ranking(
     FOREIGN KEY (obra_id) REFERENCES Obra(id_obra)
 );
 
-USE pianoclassification_new;
+USE pianoclassification;
 
-LOAD DATA INFILE 'cleaned_data_new.csv'
+LOAD DATA INFILE '/api/db/cleaned_data.csv'
 INTO TABLE ttm
 COLUMNS TERMINATED BY ';'
 OPTIONALLY ENCLOSED BY '"'
@@ -93,4 +93,3 @@ SELECT DISTINCT music FROM ttm;
 -- #SELECT DISTINCT name FROM Obra
 
 select @@datadir;
-select *from ranking;

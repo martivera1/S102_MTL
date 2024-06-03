@@ -36,16 +36,16 @@ init_users(app)
 logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/', methods=['GET'])
-@login_required
+# @login_required
 def home():
     return 'Hello, World!'
 
 @app.route('/obras', methods=['GET'])
-@login_required
+# @login_required
 def get_all_obras():
     db = get_db()
     cursor = db.cursor()
-    query = "SELECT id, name, epoca, compositor, piano_roll, descriptors, time FROM Obra"
+    query = "SELECT id_obra, name, epoca, compositor, piano_roll, descriptor, complexity, entropy, duration, time FROM Obra"
     cursor.execute(query)
     obras = cursor.fetchall()
 

@@ -13,8 +13,8 @@ def get_user():
     if request.method == "GET":
 
         query = """
-        SELECT ID, email, name, sex, age, profile_picture FROM Users
-        WHERE ID = %s
+        SELECT id_user, email FROM Users
+        WHERE id_user = %s
         """
         cursor.execute(query, (user_id,))
         users = cursor.fetchall()
@@ -56,7 +56,7 @@ def get_user():
         return
 
 
-@login_required
+# @login_required
 def get_users():
     db = get_db()
     cursor = db.cursor()

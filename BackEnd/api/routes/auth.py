@@ -32,9 +32,9 @@ def login_required(f):
     return decorated_function
 
 def login():
-    # redirect_response = google.authorize_redirect()
-    # logging.debug(f"Generated state: {session.get('_google_authlib_state_')}")
-    # return redirect_response
+    redirect_response = google.authorize_redirect()
+    logging.debug(f"Generated state: {session.get('_google_authlib_state_')}")
+    return redirect_response
 
     # Generate a new UUID for the state
     new_state = str(uuid4())
