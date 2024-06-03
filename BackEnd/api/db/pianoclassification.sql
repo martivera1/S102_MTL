@@ -1,10 +1,10 @@
-DROP SCHEMA IF EXISTS pianoclassification_new;
-CREATE DATABASE IF NOT EXISTS pianoclassification_new
+set global local_infile=1;
+DROP SCHEMA IF EXISTS pianoclassifications;
+CREATE DATABASE IF NOT EXISTS pianoclassifications
 DEFAULT CHARACTER SET 'utf8mb4'
 DEFAULT COLLATE 'utf8mb4_general_ci';
 
-USE pianoclassification_new;
-
+USE pianoclassifications;
 DROP TABLE IF EXISTS ttm;
 CREATE TABLE ttm (
     surname VARCHAR (1000) NOT NULL,
@@ -18,7 +18,6 @@ CREATE TABLE ttm (
     audio_name VARCHAR (500),
     audio_duration BIGINT
 );
-
 DROP TABLE IF EXISTS Obra;
 CREATE TABLE Obra(
     id_obra INT NOT NULL AUTO_INCREMENT,
@@ -26,14 +25,12 @@ CREATE TABLE Obra(
     epoca Varchar (50),
     compositor VARCHAR(100),
     piano_roll VARCHAR(500),
-    descriptor VARCHAR(500),
-    complexity INT,
-    entropy FLOAT,
-    duration FLOAT,
+    atr_complexity INT,
+    atr_entropy FLOAT,
+    atr_duration FLOAT,
     time BIGINT,
     PRIMARY KEY (id_obra)
 );
-
 DROP TABLE IF EXISTS Partitura;
 CREATE TABLE Partitura(
     id_partitura INT NOT NULL AUTO_INCREMENT,
@@ -42,7 +39,6 @@ CREATE TABLE Partitura(
     FOREIGN KEY (id_partitura) REFERENCES Obra(id_obra),
     PRIMARY KEY (pdf_path)
 );
-
 DROP TABLE IF EXISTS Video;
 CREATE TABLE Video(
     id_video INT NOT NULL AUTO_INCREMENT,
@@ -51,7 +47,6 @@ CREATE TABLE Video(
     FOREIGN KEY (id_video) REFERENCES Obra(id_obra),
     PRIMARY KEY (youtube_path)
 );
-
 CREATE INDEX idx_name ON Video(name);
 DROP TABLE IF EXISTS Users;
 CREATE TABLE Users(
@@ -59,7 +54,6 @@ CREATE TABLE Users(
     email VARCHAR(200),
     PRIMARY KEY (id_user)
 );
-
 DROP TABLE IF EXISTS Ranking;
 CREATE TABLE Ranking(
     id_ranking INT NOT NULL AUTO_INCREMENT,
@@ -72,25 +66,22 @@ CREATE TABLE Ranking(
     FOREIGN KEY (user_id) REFERENCES Users(id_user),
     FOREIGN KEY (obra_id) REFERENCES Obra(id_obra)
 );
-
-USE pianoclassification_new;
-
-LOAD DATA INFILE 'cleaned_data_new.csv'
+USE pianoclassifications;
+LOAD DATA INFILE 'actualized_data.csv'
 INTO TABLE ttm
 COLUMNS TERMINATED BY ';'
 OPTIONALLY ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
-IGNORE 1 LINES;
-
+IGNORE 1 LINES
+;
 INSERT IGNORE INTO Obra(name, epoca, compositor, time)
 SELECT DISTINCT youtube_id, birth, firstname, audio_duration FROM ttm;
 INSERT IGNORE INTO Video(youtube_path, name)
 SELECT DISTINCT youtube_id, music FROM ttm;
 INSERT IGNORE INTO Partitura( name)
 SELECT DISTINCT music FROM ttm;
--- INSERT IGNORE INTO Partitura (name)
-
--- #SELECT DISTINCT name FROM Obra
-
+#INSERT IGNORE INTO Partitura (name)
+#SELECT DISTINCT name FROM Obra
+#;
 select @@datadir;
-select *from ranking;
+select * from obra;
