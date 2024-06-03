@@ -75,14 +75,14 @@ def callback():
     cursor = db.cursor()
     
     # Check if user exists
-    cursor.execute("SELECT ID FROM Users WHERE email = %s", (email,))
+    cursor.execute("SELECT id_users FROM Users WHERE email = %s", (email,))
     user = cursor.fetchone()
 
     if user is None:
         # Insert new user
         cursor.execute("INSERT INTO Users (email) VALUES (%s)", (email,))
         db.commit()
-        cursor.execute("SELECT ID FROM Users WHERE email = %s", (email,))
+        cursor.execute("SELECT user_id FROM Users WHERE email = %s", (email,))
         user = cursor.fetchone()
     
     session['user_id'] = user[0]

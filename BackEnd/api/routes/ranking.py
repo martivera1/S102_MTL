@@ -120,10 +120,10 @@ def generate_ranking():
         db = get_db()
         cursor = db.cursor()
         query = """
-        INSERT INTO Ranking (name, star, description, ID)
+        INSERT INTO Ranking (name, star, description, user_id, obra_id)
         VALUES (%s, %s, %s, %s)
         """     
-        cursor.execute(query, (name, star, description, user_id))
+        cursor.execute(query, (name, star, description, user_id, obra_id))
         db.commit()
 
         

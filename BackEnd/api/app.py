@@ -58,7 +58,10 @@ def get_all_obras():
             'compositor': obra[3],
             'piano_roll': obra[4],
             'descriptors': obra[5],
-            'time': obra[6]
+            'complexity': obra[6],
+            'entropy': obra[7],
+            'duration': obra[8],
+            'time': obra[9]
         })
     
     return jsonify(result)
