@@ -67,7 +67,7 @@ CREATE TABLE Ranking(
     FOREIGN KEY (obra_id) REFERENCES Obra(id_obra)
 );
 USE pianoclassifications;
-LOAD DATA INFILE 'actualized_data.csv'
+LOAD DATA INFILE 'cleaned_data_new.csv'
 INTO TABLE ttm
 COLUMNS TERMINATED BY ';'
 OPTIONALLY ENCLOSED BY '"'
