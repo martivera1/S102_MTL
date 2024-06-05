@@ -10,7 +10,7 @@ function Home() {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        fetch("/home")
+        fetch("http://localhost:5000/home")
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Network response was not ok");

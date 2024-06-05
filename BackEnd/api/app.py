@@ -6,6 +6,7 @@ import os
 import sys
 import logging
 from werkzeug.middleware.proxy_fix import ProxyFix
+from flask_cors import CORS
 
 from db.db import get_db, close_db
 from routes.auth import init_app as init_auth
@@ -13,6 +14,7 @@ from routes.ranking import init_app as init_ranking
 from routes.users import init_app as init_users
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})  # Allow requests from localhost:3000
 
 # Load configuration from the config file
 app.config.from_object('config.Config')
@@ -32,7 +34,8 @@ logging.basicConfig(level=logging.DEBUG)
 @app.route('/home', methods=['GET'])
 # @login_required
 def home():
-    return 'Hello, World!'
+    print("In home")
+    return jsonify({'message': 'Hello from Flask!'})
 
 @app.route('/upload', methods=['GET'])
 # @login_required
