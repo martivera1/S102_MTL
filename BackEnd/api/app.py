@@ -7,6 +7,7 @@ import sys
 import logging
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
+from flask_login import LoginManager
 
 from db.db import get_db, close_db
 from routes.auth import init_app as init_auth

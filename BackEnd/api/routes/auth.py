@@ -3,65 +3,67 @@ from functools import wraps
 from flask import session, redirect, request, url_for
 from uuid import uuid4
 import logging
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from requests_oauthlib import OAuth2Session
 
 from config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 from db.db import get_db
 
+# Flask-Login setup
+login_manager = LoginManager()
+
 # Create OAuth object
 oauth = OAuth()
 
-google = oauth.register(
-    name='google',
-    client_id=GOOGLE_CLIENT_ID,
-    client_secret=GOOGLE_CLIENT_SECRET,
-    authorize_url='https://accounts.google.com/o/oauth2/auth',
-    authorize_params=None,
-    access_token_url='https://accounts.google.com/o/oauth2/token',
-    access_token_params=None,
-    refresh_token_url=None,
-    redirect_uri='http://localhost:5000/callback',
-    client_kwargs={'scope': 'email'}
-)
+# OAuth configuration
+client_id = GOOGLE_CLIENT_ID
+client_secret = GOOGLE_CLIENT_SECRET
+authorization_base_url = 'https://accounts.google.com/o/oauth2/auth'
+token_url = 'https://accounts.google.com/o/oauth2/token'
+redirect_uri = 'http://localhost:5000/callback'
+scope = ['profile', 'email']
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
+
+class User(UserMixin):
+    pass
+
 
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
-            return redirect('/start-login')
+            return redirect('/login')
         return f(*args, **kwargs)
     return decorated_function
 
-def start_login():
-    state = str(uuid4())
-    session['_google_authlib_state_'] = state
-    logging.debug(f"Setting session state: {state}")
-    redirect_response = google.authorize_redirect(url_for('callback', _external=True))
-    logging.debug(f"Generated state: {session.get('_google_authlib_state_')}")
-    return redirect_response
+@login_manager.user_loader
+def load_user(user_id):
+    user = User()
+    user.id = user_id
+    return user
 
-def logout():
-    session.pop('google_token', None)
-    session.pop('user_id', None)
-    return redirect('/')
+
+
+def index():
+    if 'google_token' in session:
+        user_info = oauth.google.get('https://www.googleapis.com/oauth2/v1/userinfo').json()
+        return f'Logged in as {user_info["email"]}<br><a href="/logout">Logout</a>'
+    return 'You are not logged in<br><a href="/login">Login</a>'
+
+def login():
+    google = OAuth2Session(client_id, redirect_uri=redirect_uri, scope=scope)
+    authorization_url, state = google.authorization_url(authorization_base_url, access_type='offline', prompt='select_account')
+    session['oauth_state'] = state
+    return redirect(authorization_url)
 
 def callback():
-    logging.debug(f"Request state: {request.args.get('state')}")
-    logging.debug(f"Session state: {session.get('_google_authlib_state_')}")
+    google = OAuth2Session(client_id, state=session['oauth_state'], redirect_uri=redirect_uri)
+    token = google.fetch_token(token_url, client_secret=client_secret, authorization_response=request.url)
+    session['google_token'] = token
 
-    if session.get('_google_authlib_state_') != request.args.get('state'):
-        return 'State mismatch', 400
-
-    token = google.authorize_access_token()
-    if token is None or 'access_token' not in token:
-        return 'Access denied'
-
-    logging.debug(f"Received token: {token}")
-
-    session['google_token'] = (token['access_token'], '')
-    userinfo = google.parse_id_token(token)
+    userinfo = token['userinfo']
     email = userinfo.get('email')
 
     if not email:
@@ -85,10 +87,18 @@ def callback():
 
     return redirect('/')
 
+@login_required
+def logout():
+    session.pop('google_token', None)
+    return redirect(url_for('.index'))
+
 def init_app(app):
     # Initialize OAuth with Flask app
     oauth.init_app(app)
 
-    app.route('/start-login')(start_login)
+    login_manager.init_app(app)
+    login_manager.login_view = 'login'
+
+    app.route('/login')(login)
     app.route('/logout')(logout)
     app.route('/callback')(callback)

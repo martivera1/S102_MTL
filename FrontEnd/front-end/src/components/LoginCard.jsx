@@ -3,7 +3,7 @@ import GoogleLogo from '../static/images/google_icon.png';
 
 const LoginCard = () => {
   const handleLogin = () => {
-    window.location.href = 'http://localhost:5000/start-login'; // Point directly to the backend
+    window.location.href = 'http://localhost:5000/login'; // Point directly to the backend
   };
 
   return (
