@@ -2,13 +2,9 @@
 
 To run the app:
     
-    ../BackEnd/
-        $venv/Scripts/activate
+    $ docker-compose build
+    $ docker-compose up
 
-    ../BackEnd/api/
-        $flask run
-
-    ../FrontEnd/front-end/
-        $npm start
+URL: [localhost:](http://localhost:3000/)
 
 /*************************************/
