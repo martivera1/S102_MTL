@@ -2,6 +2,144 @@ from flask import jsonify, session, request
 from functools import wraps
 from db.db import get_db
 from routes.auth import login_required
+import re
+
+from pytube import YouTube
+from piano_transcription_inference import PianoTranscription, sample_rate, load_audio
+import librosa
+import torch
+import time
+import os
+import tempfile
+
+import json
+import pretty_midi
+import numpy as np
+from collections import Counter
+from scipy.stats import entropy
+import pickle
+
+### CODE TO DOWNLOAND VIDEO AND EXTRACT AUDIO AND TRANSCRIBE IT TO MIDI
+def process_youtube_video(url):
+    with tempfile.TemporaryDirectory() as output_path:
+        def descargar_audio(url, output_path, filename):
+            youtube = YouTube(url)
+            video= youtube.streams.filter(only_audio=True).first()
+            video.download(output_path=output_path, filename=filename)
+
+        # Generate unique filenames
+        audio_filename = f"audio_{time.time()}.mp3"
+        midi_filename = f"piano_roll_{time.time()}.midi"
+
+        # Download the audio from the YouTube video
+        descargar_audio(url, output_path, audio_filename)
+
+        # Load audio
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        audio_path = os.path.join(output_path, audio_filename)
+        (audio, _) = librosa.core.load(audio_path, sr=sample_rate, mono=True)
+
+        # Transcriptor
+        transcriptor = PianoTranscription(device=device)
+
+        # Transcribe and write out to MIDI file
+        midi_path = os.path.join(output_path, midi_filename)
+        transcribed_dict = transcriptor.transcribe(audio, midi_path)
+
+        return audio_path, midi_path
+######################################################################  
+
+### CODE TO COMPUTE THE FEATURES OF THE MIDI FILE
+TIME_THRESHOLD = 0.05  # Adjust this value as needed
+
+def extract_pitch_sets(midi_file):
+    midi_data = pretty_midi.PrettyMIDI(midi_file)
+    pitch_sets = []
+
+    # Combine notes into simultaneous events
+    for instrument in midi_data.instruments:
+        if not instrument.is_drum:
+            current_event = []
+            current_start_time = None
+            for note in instrument.notes:
+                if current_start_time is None or note.start <= current_start_time + TIME_THRESHOLD:
+                    current_event.append(note.pitch)
+                    current_start_time = min(current_start_time, note.start) if current_start_time is not None else note.start
+                else:
+                    pitch_sets.append('-'.join(map(str, sorted(current_event))))
+                    current_event = [note.pitch]
+                    current_start_time = note.start
+            if current_event:
+                pitch_sets.append('-'.join(map(str, sorted(current_event))))
+
+    return pitch_sets
+
+
+def lz_complexity(s):
+    p = 0
+    C = 1
+    u = 1
+    v = 1
+    vmax = v
+    while u + v < len(s):
+        if s[p - 1 + v] == s[u + v - 1]:
+            v += 1
+        else:
+            vmax = max(v, vmax)
+            p += 1
+            if p == u:
+                C += 1
+                u += vmax
+                v = 1
+                p = 0
+                vmax = v
+            else:
+                v = 1
+    if v > 1:
+        C += 1
+    return C
+
+
+def compute_pitch_entropy(pitch_sets):
+    pitch_counts = Counter(pitch_sets)
+    probabilities = np.array(list(pitch_counts.values())) / len(pitch_sets)
+    return entropy(probabilities)
+######################################################################
+
+### CODE TO DO PARTIAL FIT OF THE MODEL
+def prepare_dataset(data):
+    features = []
+    labels = []
+    for item in data:
+        features.append([
+            item['complexity'],
+            item['entropy']
+        ])
+        labels.append(item['grade'])
+    return np.array(features), np.array(labels)
+
+def prepare_dataset_giantmidi(data):
+    features = []
+    for item in data.values():
+        features.append([
+            item['complexity'],
+            item['entropy']
+        ])
+    return np.array(features)
+
+def partial_fit(new_data):
+    X_partial_train, y_partial_train = prepare_dataset(new_data)
+    loaded_model = pickle.load(open("finalized_model.sav", 'rb'))
+    modified_model = loaded_model.partial_fit(
+        X_partial_train, y_partial_train, classes=[ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10], sample_weight=5000/len(y_partial_train)
+    )
+    return modified_model
+
+def generate_new_exploration(modified_model, giant_midi_features):
+    X = prepare_dataset_giantmidi(giant_midi_features)
+    predictions = modified_model.predict(X)
+    return {k: int(v) for k, v in zip(giant_midi_features.keys(), predictions)}
+######################################################################
 
 # @login_required
 def upload_link():
@@ -19,7 +157,40 @@ def upload_link():
             if "youtube" in link:
                 pattern = r'(?:v=|\/)([0-9A-Za-z_-]{11}).*'
                 match = re.search(pattern, link)
-                link = match.group(1)
+
+                ### TESTING DOWNLOAD AND TRANSCRIPTION OF YOUTUBE VIDEO
+                youtube_id = match.group(1)
+                youtube_url = f"https://www.youtube.com/watch?v={youtube_id}"
+
+                audio_path, midi_path = process_youtube_video(youtube_url)
+                ##############################################
+
+                ### TESTING COMPUTATION OF FEATURES
+                midi_data = pretty_midi.PrettyMIDI(midi_path)
+                pitch_sets = extract_pitch_sets(midi_data)
+                complexity = lz_complexity(pitch_sets)
+                entropy = compute_pitch_entropy(pitch_sets)
+
+                features = {
+                    'complexity': complexity,
+                    'entropy': entropy,
+                    'ranking': ranking
+                }
+
+                # Check if 'features.json' exists, if not create an empty dictionary
+                if os.path.exists('features.json'):
+                    with open('features.json', 'r') as f:
+                        all_features = json.load(f)
+                else:
+                    all_features = {}
+
+                # Add the features of the current MIDI file to the dictionary
+                all_features[youtube_id] = features
+
+                # Write the updated dictionary back to 'features.json'
+                with open('features.json', 'w') as f:
+                    json.dump(all_features, f)
+                ##############################################
 
             # elif "imslp" in link:
 
@@ -126,7 +297,27 @@ def generate_ranking():
         cursor.execute(query, (name, star, description, user_id, obra_id))
         db.commit()
 
-        
+        ### TESTING PARTIAL FIT OF THE MODEL --> charge giantmidi_features.json from the database
+        #                                    --> precharge the model or add path of the model finalized_model.sav
+        # Load the features of the MIDI files
+        with open('features.json', 'r') as f:
+            features = json.load(f)
+
+        # Prepare the dataset
+        X_partial_train, y_partial_train = prepare_dataset(features)
+
+        # Load the model and perform partial fit
+        loaded_model = pickle.load(open("finalized_model.sav", 'rb'))
+        modified_model = loaded_model.partial_fit(
+            X_partial_train, y_partial_train, classes=[ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10], sample_weight=5000/len(y_partial_train)
+        )
+
+        # Generate new exploration
+        with open('giantmidi_features.json') as f:
+            giant_midi_features = json.load(f)
+        exploration_ranking = generate_new_exploration(modified_model, giant_midi_features)
+
+        ##############################################
 
         return jsonify({'message': 'Ranking generated successfully'})
     else:
