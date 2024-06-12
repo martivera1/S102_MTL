@@ -21,32 +21,42 @@ import pickle
 
 ### CODE TO DOWNLOAND VIDEO AND EXTRACT AUDIO AND TRANSCRIBE IT TO MIDI
 def process_youtube_video(url):
-    with tempfile.TemporaryDirectory() as output_path:
-        def descargar_audio(url, output_path, filename):
+    output_path = "/api/routes/tmp/"
+    def descargar_audio(url, output_path, filename):
+        try:
+
             youtube = YouTube(url)
             video= youtube.streams.filter(only_audio=True).first()
             video.download(output_path=output_path, filename=filename)
+        except:
+            print("File not downloaded correctly")
 
-        # Generate unique filenames
-        audio_filename = f"audio_{time.time()}.mp3"
-        midi_filename = f"piano_roll_{time.time()}.midi"
+    # Generate unique filenames
+    audio_filename = f"audio_{time.time()}.mp3"
+    midi_filename = f"piano_roll_{time.time()}.midi"
 
-        # Download the audio from the YouTube video
-        descargar_audio(url, output_path, audio_filename)
 
-        # Load audio
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        audio_path = os.path.join(output_path, audio_filename)
-        (audio, _) = librosa.core.load(audio_path, sr=sample_rate, mono=True)
+    # Download the audio from the YouTube video
+    descargar_audio(url, output_path, audio_filename)
 
-        # Transcriptor
-        transcriptor = PianoTranscription(device=device)
+    time.sleep(5)
+    print("5 seconds passed")
 
-        # Transcribe and write out to MIDI file
-        midi_path = os.path.join(output_path, midi_filename)
-        transcribed_dict = transcriptor.transcribe(audio, midi_path)
+    # Load audio
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    audio_path = os.path.join(output_path, audio_filename)
 
-        return audio_path, midi_path
+    (audio, _) = librosa.core.load(audio_path, sr=sample_rate, mono=True)
+    # (audio, ) = load_audio(audio_path, sr=sample_rate, mono=True)
+
+    # Transcriptor
+    transcriptor = PianoTranscription(device=device)
+
+    # Transcribe and write out to MIDI file
+    midi_path = os.path.join(output_path, midi_filename)
+    transcribed_dict = transcriptor.transcribe(audio, midi_path)
+
+    return audio_path, midi_path
 ######################################################################  
 
 ### CODE TO COMPUTE THE FEATURES OF THE MIDI FILE
@@ -145,14 +155,16 @@ def generate_new_exploration(modified_model, giant_midi_features):
 def upload_link():
     if request.method == 'POST':
         # Extract JSON data from request body
+        print("checkpoint1")
         data = request.json
-        
-        # Check if 'link' and 'ranking' are present in the JSON data
-        if 'link' in data and 'ranking' in data:
-            link = data['link']
-            ranking = data['ranking']
+        print("checkpoint2")
+        print(data)
 
-            print(f"link: {link}, ranking: {ranking}")
+        # Check if 'link' and 'ranking' are present in the JSON data
+        if 'link' in data:
+            link = data['link']
+
+            print(f"link: {link}")
 
             if "youtube" in link:
                 pattern = r'(?:v=|\/)([0-9A-Za-z_-]{11}).*'
@@ -217,6 +229,8 @@ def modify_link():
     if request.method == 'PUT':
         # Extract JSON data from request body
         data = request.json
+
+        print(data)
 
         # Check if 'old_link' and 'new_link' are present in the JSON data
         if 'old_link' in data and 'new_link' in data:

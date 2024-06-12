@@ -42,6 +42,7 @@ def home():
 @app.route('/upload', methods=['GET'])
 # @login_required
 def upload():
+    print("upload page")
     return jsonify({'message': 'Upload Page'})
 
 @app.route('/obras', methods=['GET'])

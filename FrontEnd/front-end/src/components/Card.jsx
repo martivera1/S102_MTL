@@ -3,9 +3,10 @@ import ListedPiece from './ListedPiece';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 const Card = ({ pieces: initialPieces }) => {
-  const [levels, setLevels] = useState(Array.from({ length: 10 }, () => [])); // Inicializa 10 niveles vacíos
+  const [levels, setLevels] = useState(Array.from({ length: 10 }, () => [])); // Initialize 10 empty levels
+  const [link, setLink] = useState('');
 
-  // Distribuir piezas iniciales entre niveles (esto es solo un ejemplo)
+  // Distribute initial pieces among levels (this is just an example)
   useEffect(() => {
     const distributedPieces = levels.map((level, index) => {
       return initialPieces.filter((_, pieceIndex) => pieceIndex % 10 === index);
@@ -32,6 +33,27 @@ const Card = ({ pieces: initialPieces }) => {
     setLevels(newLevels);
   };
 
+  const handleUploadClick = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/upload_link', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ link }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error('Error uploading link:', error);
+    }
+  };
+
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className='flex bg-white rounded-3xl lg:w-[800px] md:w-[600px] sm:w-[400px] mx-auto my-[8vh] flex-col font-roboto shadow-2xl'>
@@ -39,9 +61,14 @@ const Card = ({ pieces: initialPieces }) => {
           type="text"
           placeholder='Paste Link...'
           className='bg-grey mt-[4vh] bg-slate-100 px-3 py-5 rounded-md mx-8 mb-[2vh] h-8 outline-none'
+          value={link}
+          onChange={(e) => setLink(e.target.value)}
         />
         <div className='flex align-middle justify-center items-center flex-col'>
-          <button className='bg-blue-600 rounded-lg px-8 py-1.5 text-white mr-4 mb-[2vh] hover:bg-blue-700 text-md'>
+          <button
+            className='bg-blue-600 rounded-lg px-8 py-1.5 text-white mr-4 mb-[2vh] hover:bg-blue-700 text-md'
+            onClick={handleUploadClick}
+          >
             Upload Video
           </button>
         </div>
