@@ -44,8 +44,6 @@ def load_user(user_id):
     user.id = user_id
     return user
 
-
-
 def index():
     if 'google_token' in session:
         user_info = oauth.google.get('https://www.googleapis.com/oauth2/v1/userinfo').json()

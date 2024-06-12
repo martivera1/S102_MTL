@@ -13,6 +13,7 @@ from db.db import get_db, close_db
 from routes.auth import init_app as init_auth
 from routes.ranking import init_app as init_ranking
 from routes.users import init_app as init_users
+from routes.auth import login_required
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})  # Allow requests from localhost:3000
