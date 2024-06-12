@@ -106,3 +106,13 @@ SET
     o.atr_entropy = t.pitch_entropy,
     o.atr_duration = t.duration;
 
+DELETE FROM video
+WHERE id_video IN (
+    SELECT id_obra
+    FROM obra
+    WHERE atr_complexity IS NULL
+       OR atr_entropy IS NULL
+);
+DELETE FROM obra
+WHERE atr_complexity IS NULL
+   OR atr_entropy IS NULL;
