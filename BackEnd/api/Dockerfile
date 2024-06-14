@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.10
+FROM python:3.10.12 
 
 # Set environment variables
 ENV FLASK_APP=app.py
@@ -9,6 +9,11 @@ ENV SECRET_KEY '$\x14\x03#Rxa6\xc0\x90j\xd7p\t}\xc3r\xa3_\x11\xa6\xcd;\xff'
 
 # Set up MySQL root password
 ENV MYSQL_ROOT_PASSWORD=root
+
+# Install ffmpeg
+RUN apt-get update && \
+    apt-get install -y ffmpeg && \
+    apt-get clean
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \

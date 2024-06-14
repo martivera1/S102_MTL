@@ -25,36 +25,51 @@ def process_youtube_video(url):
     def descargar_audio(url, output_path, filename):
         try:
 
-            youtube = YouTube(url)
-            video= youtube.streams.filter(only_audio=True).first()
-            video.download(output_path=output_path, filename=filename)
+            youtube = YouTube(url);
+            video= youtube.streams.filter(only_audio=True).first();
+            video.download(output_path=output_path, filename=filename);
         except:
             print("File not downloaded correctly")
 
     # Generate unique filenames
     audio_filename = f"audio_{time.time()}.mp3"
-    midi_filename = f"piano_roll_{time.time()}.midi"
+    midi_filename = f"piano_roll_{time.time()}.midi"  #TODO Define same time for both files
 
 
     # Download the audio from the YouTube video
     descargar_audio(url, output_path, audio_filename)
 
-    time.sleep(5)
-    print("5 seconds passed")
+    #time.sleep(20)
+    #print("5 seconds passed")
 
     # Load audio
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu");
     audio_path = os.path.join(output_path, audio_filename)
 
-    (audio, _) = librosa.core.load(audio_path, sr=sample_rate, mono=True)
-    # (audio, ) = load_audio(audio_path, sr=sample_rate, mono=True)
+    os.chmod(audio_path, 0o777)
+
+
+    while not os.path.exists(audio_path):
+        print("Waiting for file to be written to disk...")
+        time.sleep(1)
+
+    print("File exists, proceeding...")
+
+    #(audio, _) = librosa.load(audio_path, sr=sample_rate, mono=True);
+    (audio, _) = librosa.core.load(audio_path, sr=sample_rate, mono=True);
+    #(audio, ) = load_audio(audio_path, sr=sample_rate, mono=True)
+
+    
 
     # Transcriptor
+    print('Pre transcriptor', flush=True)
     transcriptor = PianoTranscription(device=device)
 
     # Transcribe and write out to MIDI file
     midi_path = os.path.join(output_path, midi_filename)
+    print('Start transcriptor', flush=True)
     transcribed_dict = transcriptor.transcribe(audio, midi_path)
+    os.chmod(midi_path, 0o777)
 
     return audio_path, midi_path
 ######################################################################  
@@ -157,7 +172,6 @@ def upload_link():
         # Extract JSON data from request body
         print("checkpoint1")
         data = request.json
-        print("checkpoint2")
         print(data)
 
         # Check if 'link' and 'ranking' are present in the JSON data
@@ -174,24 +188,27 @@ def upload_link():
                 youtube_id = match.group(1)
                 youtube_url = f"https://www.youtube.com/watch?v={youtube_id}"
 
+                print("checkpoint2")
+
                 audio_path, midi_path = process_youtube_video(youtube_url)
+
+                print("checkpoint3")
                 ##############################################
 
                 ### TESTING COMPUTATION OF FEATURES
-                midi_data = pretty_midi.PrettyMIDI(midi_path)
-                pitch_sets = extract_pitch_sets(midi_data)
+                pitch_sets = extract_pitch_sets(midi_path)
                 complexity = lz_complexity(pitch_sets)
-                entropy = compute_pitch_entropy(pitch_sets)
+                entropy = compute_pitch_entropy(pitch_sets) 
 
                 features = {
                     'complexity': complexity,
                     'entropy': entropy,
-                    'ranking': ranking
+                    'ranking': 1 # TODO ADD RANKING INTO JSON WHEN GENERATING RANKING
                 }
 
                 # Check if 'features.json' exists, if not create an empty dictionary
-                if os.path.exists('features.json'):
-                    with open('features.json', 'r') as f:
+                if os.path.exists('/api/routes/tmp/features.json'):
+                    with open('/api/routes/tmp/features.json', 'r') as f:
                         all_features = json.load(f)
                 else:
                     all_features = {}
@@ -200,7 +217,7 @@ def upload_link():
                 all_features[youtube_id] = features
 
                 # Write the updated dictionary back to 'features.json'
-                with open('features.json', 'w') as f:
+                with open('/api/routes/tmp/features.json', 'w') as f:
                     json.dump(all_features, f)
                 ##############################################
 
@@ -212,7 +229,7 @@ def upload_link():
             temp_links = session['temp_links']
             temp_links.append({
                 'link': youtube_id,
-                'ranking': ranking
+                'ranking': 1 # TODO ADD RANKING INTO JSON WHEN GENERATING RANKING
             })
             session['temp_links'] = temp_links
 
