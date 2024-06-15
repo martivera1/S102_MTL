@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Card from "../components/Card";
+import { BACKEND } from "../constants";
 
 function Upload() {
     const [uploadMessage, setUploadMessage] = useState("");
     const [error, setError] = useState("");
 
     useEffect(() => {
-        fetch("http://localhost:5000/upload")
+        fetch(BACKEND + "/upload")
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Network response was not ok");

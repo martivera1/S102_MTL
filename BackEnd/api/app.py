@@ -16,7 +16,7 @@ from routes.users import init_app as init_users
 from routes.auth import login_required
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})  # Allow requests from localhost:3000
+CORS(app, resources={r"/*": {"origins": "https://www.pianomusic.com:3000/"}})  # Allow requests from localhost:3000
 
 # Load configuration from the config file
 app.config.from_object('config.Config')
@@ -71,5 +71,10 @@ def get_all_obras():
     
     return jsonify(result)
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    app.run(
+        host="0.0.0.0",
+        ssl_context=("cert/pianomusic.com.crt", "cert/pianomusic.com.key"),
+        debug=False,
+    )
+
