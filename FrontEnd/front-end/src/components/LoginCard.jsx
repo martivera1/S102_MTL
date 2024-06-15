@@ -1,9 +1,10 @@
 import React from 'react';
 import GoogleLogo from '../static/images/google_icon.png';
+import { BACKEND_URL } from '../constants';
 
 const LoginCard = () => {
   const handleLogin = () => {
-    window.location.href = 'http://localhost:5000/login'; // Point directly to the backend
+    window.location.href = `${BACKEND_URL}/login`; // Point directly to the backend
   };
 
   return (

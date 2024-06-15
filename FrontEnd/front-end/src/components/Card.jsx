@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ListedPiece from './ListedPiece';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import { BACKEND } from '../constants';
+import { BACKEND_URL } from '../constants';
 
 const Card = ({ pieces: initialPieces }) => {
   const [levels, setLevels] = useState(Array.from({ length: 10 }, () => [])); // Initialize 10 empty levels
@@ -36,7 +36,7 @@ const Card = ({ pieces: initialPieces }) => {
 
   const handleUploadClick = async () => {
     try {
-      const response = await fetch('https://www.pianomusic.com:5000/upload_link', {
+      const response = await fetch(`${BACKEND_URL}/upload_link`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ const Card = ({ pieces: initialPieces }) => {
       console.error('Error uploading link:', error);
     }
   };
-
+  
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className='flex bg-white rounded-3xl lg:w-[800px] md:w-[600px] sm:w-[400px] mx-auto my-[8vh] flex-col font-roboto shadow-2xl'>
