@@ -16,7 +16,7 @@ from routes.users import init_app as init_users
 from routes.auth import login_required
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://www.pianomusic.com:3000"}})  # Allow requests from localhost:3000
+CORS(app, resources={r"/*": {"origins": "https://www.pianomusic.com:3000"}})
 
 # Load configuration from the config file
 app.config.from_object('config.Config')

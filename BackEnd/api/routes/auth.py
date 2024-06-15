@@ -20,7 +20,7 @@ client_id = GOOGLE_CLIENT_ID
 client_secret = GOOGLE_CLIENT_SECRET
 authorization_base_url = 'https://accounts.google.com/o/oauth2/auth'
 token_url = 'https://accounts.google.com/o/oauth2/token'
-redirect_uri = 'https://localhost:5000/callback'
+redirect_uri = 'https://www.pianomusic.com:5000/callback'
 scope = ['profile', 'email']
 
 # Configure logging
