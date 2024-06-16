@@ -32,15 +32,14 @@ def process_youtube_video(url):
             print("File not downloaded correctly")
 
     # Generate unique filenames
-    audio_filename = f"audio_{time.time()}.mp3"
-    midi_filename = f"piano_roll_{time.time()}.midi"  #TODO Define same time for both files
+    unique_id = time.time()
+    audio_filename = f"audio_{unique_id}.mp3"
+    midi_filename = f"piano_roll_{unique_id}.midi"  
 
 
     # Download the audio from the YouTube video
     descargar_audio(url, output_path, audio_filename)
 
-    #time.sleep(20)
-    #print("5 seconds passed")
 
     # Load audio
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu");
@@ -58,8 +57,6 @@ def process_youtube_video(url):
     #(audio, _) = librosa.load(audio_path, sr=sample_rate, mono=True);
     (audio, _) = librosa.core.load(audio_path, sr=sample_rate, mono=True);
     #(audio, ) = load_audio(audio_path, sr=sample_rate, mono=True)
-
-    
 
     # Transcriptor
     print('Pre transcriptor', flush=True)
@@ -156,7 +153,7 @@ def partial_fit(new_data):
     X_partial_train, y_partial_train = prepare_dataset(new_data)
     loaded_model = pickle.load(open("finalized_model.sav", 'rb'))
     modified_model = loaded_model.partial_fit(
-        X_partial_train, y_partial_train, classes=[ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10], sample_weight=5000/len(y_partial_train)
+        X_partial_train, y_partial_train, classes=[ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10], sample_weight=7000/len(y_partial_train)
     )
     return modified_model
 
@@ -185,12 +182,15 @@ def upload_link():
                 match = re.search(pattern, link)
 
                 ### TESTING DOWNLOAD AND TRANSCRIPTION OF YOUTUBE VIDEO
+                # Define a status dictionary
+                status_dict = {}
+
                 youtube_id = match.group(1)
-                youtube_url = f"https://www.youtube.com/watch?v={youtube_id}"
+                #youtube_url = f"https://www.youtube.com/watch?v={youtube_id}"
 
                 print("checkpoint2")
 
-                audio_path, midi_path = process_youtube_video(youtube_url)
+                audio_path, midi_path = process_youtube_video(link)
 
                 print("checkpoint3")
                 ##############################################
@@ -202,8 +202,7 @@ def upload_link():
 
                 features = {
                     'complexity': complexity,
-                    'entropy': entropy,
-                    'ranking': 1 # TODO ADD RANKING INTO JSON WHEN GENERATING RANKING
+                    'entropy': entropy
                 }
 
                 # Check if 'features.json' exists, if not create an empty dictionary
@@ -219,6 +218,22 @@ def upload_link():
                 # Write the updated dictionary back to 'features.json'
                 with open('/api/routes/tmp/features.json', 'w') as f:
                     json.dump(all_features, f)
+                
+                # After writing to the json file, delete the audio and midi files
+                os.remove(audio_path)
+                os.remove(midi_path)
+
+                # Write the status to a file that the front-end can check
+                if os.path.exists('/api/routes/tmp/status.json'):
+                    with open('/api/routes/tmp/status.json', 'r') as f:
+                        status_dict = json.load(f)
+                else:
+                    status_dict = {}
+
+                status_dict[link] = 'finished'
+
+                with open('/api/routes/tmp/status.json', 'w') as f:
+                    json.dump(status_dict, f)
                 ##############################################
 
             # elif "imslp" in link:
@@ -328,25 +343,48 @@ def generate_ranking():
         cursor.execute(query, (name, star, description, user_id, obra_id))
         db.commit()
 
-        ### TESTING PARTIAL FIT OF THE MODEL --> charge giantmidi_features.json from the database
-        #                                    --> precharge the model or add path of the model finalized_model.sav
+        ### TESTING PARTIAL FIT OF THE MODEL 
+        link= data.get('link')
+        grade = data.get('grade')
+
+        pattern = r'(?:v=|\/)([0-9A-Za-z_-]{11}).*'
+        match = re.search(pattern, link)
+        youtube_id = match.group(1)
+
         # Load the features of the MIDI files
-        with open('features.json', 'r') as f:
-            features = json.load(f)
+        with open('/api/routes/tmp/features.json', 'r') as f:
+            all_features = json.load(f)
+
+        #Add the ranking feature into json file
+        features = {
+                    'grade': grade 
+                }
+        
+        # Add the features of the current MIDI file to the dictionary
+        all_features[youtube_id] = features 
+
+        # Write the updated dictionary back to 'features.json'
+        with open('/api/routes/tmp/features.json', 'w') as f:
+            json.dump(all_features, f)
+
 
         # Prepare the dataset
-        X_partial_train, y_partial_train = prepare_dataset(features)
+        modified_model = partial_fit(all_features)
 
-        # Load the model and perform partial fit
-        loaded_model = pickle.load(open("finalized_model.sav", 'rb'))
-        modified_model = loaded_model.partial_fit(
-            X_partial_train, y_partial_train, classes=[ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10], sample_weight=5000/len(y_partial_train)
-        )
-
-        # Generate new exploration
-        with open('giantmidi_features.json') as f:
+        #TEST IMPORTING FEATURES FROM JSON FILE
+        with open('giantmidi_features.json') as f: 
             giant_midi_features = json.load(f)
         exploration_ranking = generate_new_exploration(modified_model, giant_midi_features)
+
+        #TEST IMPORTING FEATURES FROM DATABASE (HAURIEM DE FER SERVIR AIXO PER ANAR BÉ), PERO SINO FUNCIONA TIREM DE JSON A LA GUARRA
+        db= get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT name, atr_complexity, atr_entropy FROM Obra")     
+        results= cursor.fetchall()
+        giant_midi_features = {row[0]: {'complexity': row[1], 'entropy': row[2]} for row in results}
+
+        #After generating the new exploration, delete the features.json file
+        os.remove('/api/routes/tmp/features.json')
 
         ##############################################
 
