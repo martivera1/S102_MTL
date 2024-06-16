@@ -61,7 +61,10 @@ def callback():
     token = google.fetch_token(token_url, client_secret=client_secret, authorization_response=request.url)
     session['google_token'] = token
 
-    userinfo = token['userinfo']
+    # Use the access token to get user info
+    userinfo_response = google.get('https://www.googleapis.com/oauth2/v1/userinfo')
+    userinfo = userinfo_response.json()
+    
     email = userinfo.get('email')
 
     if not email:
@@ -84,6 +87,7 @@ def callback():
     session['user_id'] = user[0]
 
     return redirect('/')
+
 
 @login_required
 def logout():
