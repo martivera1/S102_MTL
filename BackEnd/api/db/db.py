@@ -4,7 +4,7 @@ from flask import g
 def get_db():
     if 'db' not in g:
         g.db = mysql.connector.connect(
-            host="localhost",
+            host="db",
             user="root",
             password="root",
             database="pianoclassification"

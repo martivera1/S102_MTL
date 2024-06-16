@@ -25,8 +25,8 @@ function Home() {
     // Aixo es temporal mentre no tinguem crides a la BBDD
     const rankings = [
         {
-            "title": "Top Big Black Cocks que he probat",
-            "description": "No em puc decidir, totes estàven boníssimes.",
+            "title": "Ranking 1",
+            "description": "Example description",
             "userpic": Profile1,
             "username": "gerard",
             "stars": 4
