@@ -11,5 +11,5 @@ Utilizing machine learning algorithms, our system will select some piano scores 
 By integrating technology with musical exploration, our goal is to empower users in discovering piano pieces and enriching their music education experience.
 
 # Data Source
-We have utilized the TROMPA-MER dataset for creating our specialized rankings. TROMPA-MER is an open dataset designed to support research in Music Emotion Recognition (MER).
+We have utilized the TROMPA-MER dataset for our generated rankings. TROMPA-MER is an open dataset designed to support research in Music Emotion Recognition (MER).
 (https://github.com/juansgomez87/vis-mtg-mer)
