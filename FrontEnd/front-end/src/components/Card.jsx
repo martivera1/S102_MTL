@@ -3,16 +3,18 @@ import ListedPiece from './ListedPiece';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { BACKEND_URL } from '../constants';
 
-const Card = ({ pieces: initialPieces, updatePieceStatus }) => {
+const Card = () => {
   const [levels, setLevels] = useState(Array.from({ length: 10 }, () => []));
   const [link, setLink] = useState('');
+  const [pieces, setPieces] = useState([])
+
 
   useEffect(() => {
     const distributedPieces = levels.map((level, index) => {
-      return initialPieces.filter((_, pieceIndex) => pieceIndex % 10 === index);
+      return pieces.filter((_, pieceIndex) => pieceIndex % 10 === index);
     });
     setLevels(distributedPieces);
-  }, [initialPieces]);
+  }, [pieces]);
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
@@ -54,18 +56,6 @@ const Card = ({ pieces: initialPieces, updatePieceStatus }) => {
         newLevels[0].push({ id: String(Date.now()), link, title: link, status: 'processing' });
         return newLevels;
       });
-
-      // Periodically check the status of the link
-      const checkStatus = async () => {
-        const statusResponse = await fetch(`${BACKEND_URL}/status/${link}`);
-        const statusData = await statusResponse.json();
-        if (statusData.status === 'finished') {
-          updatePieceStatus(link, 'completed');
-        } else {
-          setTimeout(checkStatus, 5000);
-        }
-      };
-      checkStatus();
 
     } catch (error) {
       console.error('Error uploading link:', error);
