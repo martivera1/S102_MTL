@@ -44,23 +44,36 @@ const Card = () => {
         },
         body: JSON.stringify({ link }),
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const data = await response.json();
       setLink('');
-      setLevels((prevLevels) => {
-        const newLevels = [...prevLevels];
-        newLevels[0].push({ id: String(Date.now()), link, title: link, status: 'processing' });
-        return newLevels;
-      });
-
+  
+      // Assuming the response includes the newly added piece data
+      const newPiece = {
+        id: data.link,  // Use the ID or any unique identifier from the backend response
+        link: data.link,
+        title: link,
+        status: 'processing',  // Initial status can be 'processing' or other initial state
+      };
+  
+      // Update status to 'completed' after some time (simulating processing)
+      setTimeout(() => {
+        setPieces((prevPieces) => 
+          prevPieces.map((piece) =>
+            piece.id === newPiece.id ? { ...piece, status: 'completed' } : piece
+          )
+        );
+      }, 2000); // Adjust time as per your actual processing time
+  
     } catch (error) {
       console.error('Error uploading link:', error);
     }
   };
+  
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>

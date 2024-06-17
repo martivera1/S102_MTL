@@ -231,7 +231,7 @@ def upload_link():
                     # Iniciar procesamiento en segundo plano
                     threading.Thread(target=process_link, args=(link, youtube_id)).start()
 
-                    return jsonify({'message': 'Enlace está siendo procesado', 'link': youtube_id, 'status': 'done!'}), 202
+                    return jsonify({'message': 'Enlace está siendo procesado', 'link': youtube_id, 'status': 'completed'}), 202
 
                 else:
                     return jsonify({"error": "Enlace de YouTube inválido"}), 400
