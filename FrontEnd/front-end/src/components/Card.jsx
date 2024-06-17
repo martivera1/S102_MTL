@@ -21,6 +21,10 @@ const Card = () => {
     const sourceLevel = parseInt(result.source.droppableId);
     const destLevel = parseInt(result.destination.droppableId);
 
+    if (sourceLevel === destLevel && result.source.index === result.destination.index) {
+      return; // No hacer nada si se suelta en la misma posición
+    }
+
     const sourceItems = Array.from(levels[sourceLevel]);
     const [movedItem] = sourceItems.splice(result.source.index, 1);
 
