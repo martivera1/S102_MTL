@@ -50,7 +50,6 @@ const Card = () => {
 
     setPieces((prevPieces) => [...prevPieces, newPiece]);
     setLink('');
-    console.log(pieces);
 
     try {
       const response = await fetch(`${BACKEND_URL}/upload_link`, {
@@ -80,6 +79,36 @@ const Card = () => {
           piece.id === link ? { ...piece, status: 'error' } : piece
         )
       );
+    }
+  };
+
+  const handleGenerateRankingClick = async () => {
+    const rankedLinks = levels.reduce((acc, level, index) => {
+      level.forEach(piece => {
+        acc.push({ link: piece.link, grade: index + 1 });
+      });
+      return acc;
+    }, []);
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/generate_ranking`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ links: rankedLinks, user: 1}),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      alert('Ranking generated successfully!');
+
+    } catch (error) {
+      console.error('Error generating ranking:', error);
+      alert('Failed to generate ranking');
     }
   };
 
@@ -125,7 +154,10 @@ const Card = () => {
           ))}
         </div>
         <div className='flex justify-center'>
-          <button className='bg-black rounded-lg px-8 py-1.5 text-white ml-4 mb-[3vh] hover:bg-slate-700 shadow-md text-md'>
+          <button
+            className='bg-black rounded-lg px-8 py-1.5 text-white ml-4 mb-[3vh] hover:bg-slate-700 shadow-md text-md'
+            onClick={handleGenerateRankingClick}
+          >
             Generate Personal Rank
           </button>
         </div>
