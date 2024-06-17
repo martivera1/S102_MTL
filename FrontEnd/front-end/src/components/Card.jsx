@@ -6,8 +6,7 @@ import { BACKEND_URL } from '../constants';
 const Card = () => {
   const [levels, setLevels] = useState(Array.from({ length: 10 }, () => []));
   const [link, setLink] = useState('');
-  const [pieces, setPieces] = useState([])
-
+  const [pieces, setPieces] = useState([]);
 
   useEffect(() => {
     const distributedPieces = levels.map((level, index) => {
@@ -36,6 +35,19 @@ const Card = () => {
   };
 
   const handleUploadClick = async () => {
+    if (link.trim() === '') return;
+
+    const newPiece = {
+      id: link,
+      link: link,
+      title: link,
+      status: 'processing...',
+    };
+
+    setPieces((prevPieces) => [...prevPieces, newPiece]);
+    setLink('');
+    console.log(pieces);
+
     try {
       const response = await fetch(`${BACKEND_URL}/upload_link`, {
         method: 'POST',
@@ -44,37 +56,28 @@ const Card = () => {
         },
         body: JSON.stringify({ link }),
       });
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      setLink('');
-      
-      // Assuming the response includes the newly added piece data
-      const newPiece = {
-        id: data.link,  // Use the ID or any unique identifier from the backend response
-        link: data.link,
-        title: link,
-        status: 'processing',  // Set an initial status, assuming processing
-      };
-      // Update the pieces state with the new piece
-      setPieces((prevPieces) => [...prevPieces, newPiece]);
-  
-  
-      // Update the status to 'completed' after processing on backend
+
       setPieces((prevPieces) =>
         prevPieces.map((piece) =>
-          piece.id === data.link ? { ...piece, status: 'completed' } : piece
+          piece.id === link ? { ...piece, id: data.link, status: 'completed' } : piece
         )
       );
-  
+
     } catch (error) {
       console.error('Error uploading link:', error);
+      setPieces((prevPieces) =>
+        prevPieces.map((piece) =>
+          piece.id === link ? { ...piece, status: 'error' } : piece
+        )
+      );
     }
   };
-  
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
