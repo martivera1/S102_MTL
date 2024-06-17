@@ -48,6 +48,10 @@ const Card = () => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
+      const data = await response.json();
+      setLink('');
+      
       // Assuming the response includes the newly added piece data
       const newPiece = {
         id: data.link,  // Use the ID or any unique identifier from the backend response
@@ -55,10 +59,6 @@ const Card = () => {
         title: link,
         status: 'processing',  // Set an initial status, assuming processing
       };
-  
-      const data = await response.json();
-      setLink('');
-  
       // Update the pieces state with the new piece
       setPieces((prevPieces) => [...prevPieces, newPiece]);
   
