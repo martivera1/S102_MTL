@@ -48,26 +48,27 @@ const Card = () => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
-      const data = await response.json();
-      setLink('');
-  
       // Assuming the response includes the newly added piece data
       const newPiece = {
         id: data.link,  // Use the ID or any unique identifier from the backend response
         link: data.link,
         title: link,
-        status: 'processing',  // Initial status can be 'processing' or other initial state
+        status: 'processing',  // Set an initial status, assuming processing
       };
   
-      // Update status to 'completed' after some time (simulating processing)
-      setTimeout(() => {
-        setPieces((prevPieces) => 
-          prevPieces.map((piece) =>
-            piece.id === newPiece.id ? { ...piece, status: 'completed' } : piece
-          )
-        );
-      }, 2000); // Adjust time as per your actual processing time
+      const data = await response.json();
+      setLink('');
+  
+      // Update the pieces state with the new piece
+      setPieces((prevPieces) => [...prevPieces, newPiece]);
+  
+  
+      // Update the status to 'completed' after processing on backend
+      setPieces((prevPieces) =>
+        prevPieces.map((piece) =>
+          piece.id === data.link ? { ...piece, status: 'completed' } : piece
+        )
+      );
   
     } catch (error) {
       console.error('Error uploading link:', error);

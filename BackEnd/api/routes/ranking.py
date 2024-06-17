@@ -228,8 +228,8 @@ def upload_link():
                     })
                     session['temp_links'] = temp_links
 
-                    # Iniciar procesamiento en segundo plano
-                    threading.Thread(target=process_link, args=(link, youtube_id)).start()
+                    # Process link synchronously
+                    process_link(link, youtube_id)
 
                     return jsonify({'message': 'Enlace está siendo procesado', 'link': youtube_id, 'status': 'completed'}), 202
 
