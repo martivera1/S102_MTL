@@ -4,14 +4,14 @@ import Profile1 from "../static/images/profile1.png"
 import Profile2 from "../static/images/profile2.png"
 import Profile3 from "../static/images/profile3.png"
 import Profile4 from "../static/images/profile4.png"
-import { BACKEND } from "../constants";
+import { BACKEND_URL } from "../constants";
 
 function Home() {
     const [homeMessage, setHomeMessage] = useState("");
     const [error, setError] = useState("");
 
     useEffect(() => {
-        fetch(BACKEND+"/home")
+        fetch(BACKEND_URL+"/home")
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Network response was not ok");

@@ -36,7 +36,7 @@ def index():
     if 'google_token' in session:
         google = create_oauth_session(token=session['google_token'])
         user_info = google.get('https://www.googleapis.com/oauth2/v1/userinfo').json()
-        return redirect('https://www.pianomusic.com:3000/home') 
+        return redirect('https://www.pianomusic.com:3000/') 
     return 'You are not logged in<br><a href="/login">Login</a>'
 
 def login_required(f):
@@ -89,7 +89,7 @@ def callback():
 
     session['user_id'] = user[0]
 
-    return redirect('https://www.pianomusic.com:3000/home')
+    return redirect('https://www.pianomusic.com:3000/')
 
 
 @flask_login_required

@@ -231,7 +231,7 @@ def upload_link():
                     # Iniciar procesamiento en segundo plano
                     threading.Thread(target=process_link, args=(link, youtube_id)).start()
 
-                    return jsonify({'message': 'Enlace está siendo procesado', 'link': youtube_id, 'status': 'processing'}), 202
+                    return jsonify({'message': 'Enlace está siendo procesado', 'link': youtube_id, 'status': 'done!'}), 202
 
                 else:
                     return jsonify({"error": "Enlace de YouTube inválido"}), 400
@@ -410,32 +410,6 @@ def get_user_rankings():
     return jsonify(result)
 
 # @login_required
-def get_all_rankings():
-    db = get_db()
-    cursor = db.cursor()
-    query = """
-    SELECT r.ranking, r.name, r.star, r.description, u.email, o.name
-    FROM Ranking r
-    JOIN Users u ON r.ID = u.ID
-    JOIN Obra o ON r.ID = o.id
-    """
-    cursor.execute(query)
-    rankings = cursor.fetchall()
-
-    result = []
-    for ranking in rankings:
-        result.append({
-            'ranking': ranking[0],
-            'name': ranking[1],
-            'star': ranking[2],
-            'description': ranking[3],
-            'email': ranking[4],
-            'obra_name': ranking[5],
-        })
-    
-    return jsonify(result)
-
-# @login_required
 def get_results():
 
     user_id = session.get('user_id')
@@ -465,11 +439,14 @@ def get_results():
     
     return jsonify(result)
 
+def get_links():
+    return jsonify([])
+
 def init_app(app):
     app.route('/upload_link', methods=['POST'])(upload_link)
     app.route('/modify_link', methods=['PUT'])(modify_link)
     app.route('/delete_link', methods=['DELETE'])(delete_link)
     app.route('/generate_ranking', methods=['POST'])(generate_ranking)
     app.route('/myrankings', methods=['GET'])(get_user_rankings)
-    app.route('/allrankings', methods=['GET'])(get_all_rankings)
     app.route('/results', methods=['GET'])(get_results)
+    app.route('/get_links', methods=['GET'])(get_links)
