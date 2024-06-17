@@ -13,3 +13,33 @@ By integrating technology with musical exploration, our goal is to empower users
 # Data Source
 We have utilized the TROMPA-MER dataset for our generated rankings. TROMPA-MER is an open dataset designed to support research in Music Emotion Recognition (MER).
 (https://github.com/juansgomez87/vis-mtg-mer)
+
+# Start Application
+-Go to .\certs 
+
+- Double click to pianomusic.com and install certificate.
+
+- Run notepad as administrator.
+
+- Navigate to route C:\Windows\System32\drivers\etc
+
+- Set view to "All files" and open hosts.
+
+- And write on the bottom of the file: 127.0.0.1 www.pianomusic.com, and save.
+
+-Create a file named config.py in .\BackEnd\api and introduce: 
+  
+  import os
+  GOOGLE_CLIENT_ID = 'ID_USER'
+  GOOGLE_CLIENT_SECRET = 'PASSWORD'
+  class Config:
+      SECRET_KEY = os.environ.get('SECRET_KEY', '$\x14\x03#Rxa6\xc0\x90j\xd7p\t}\xc3r\xa3_\x11\xa6\xcd;\xff')
+      SESSION_TYPE = 'filesystem'
+      SESSION_FILE_DIR = '/api/sessions'
+      SESSION_PERMANENT = False
+      SESSION_USE_SIGNER = True
+
+
+
+
+
