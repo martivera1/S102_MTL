@@ -3,11 +3,10 @@ import ListedPiece from './ListedPiece';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { BACKEND_URL } from '../constants';
 
-const Card = ({ pieces: initialPieces }) => {
-  const [levels, setLevels] = useState(Array.from({ length: 10 }, () => [])); // Initialize 10 empty levels
+const Card = ({ pieces: initialPieces, updatePieceStatus }) => {
+  const [levels, setLevels] = useState(Array.from({ length: 10 }, () => []));
   const [link, setLink] = useState('');
 
-  // Distribute initial pieces among levels (this is just an example)
   useEffect(() => {
     const distributedPieces = levels.map((level, index) => {
       return initialPieces.filter((_, pieceIndex) => pieceIndex % 10 === index);
@@ -49,12 +48,30 @@ const Card = ({ pieces: initialPieces }) => {
       }
 
       const data = await response.json();
-      console.log(data);
+      setLink('');
+      setLevels((prevLevels) => {
+        const newLevels = [...prevLevels];
+        newLevels[0].push({ id: String(Date.now()), link, title: link, status: 'processing' });
+        return newLevels;
+      });
+
+      // Periodically check the status of the link
+      const checkStatus = async () => {
+        const statusResponse = await fetch(`${BACKEND_URL}/status/${link}`);
+        const statusData = await statusResponse.json();
+        if (statusData.status === 'finished') {
+          updatePieceStatus(link, 'completed');
+        } else {
+          setTimeout(checkStatus, 5000);
+        }
+      };
+      checkStatus();
+
     } catch (error) {
       console.error('Error uploading link:', error);
     }
   };
-  
+
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className='flex bg-white rounded-3xl lg:w-[800px] md:w-[600px] sm:w-[400px] mx-auto my-[8vh] flex-col font-roboto shadow-2xl'>

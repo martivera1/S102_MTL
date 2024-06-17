@@ -12,7 +12,7 @@ const ListedPiece = ({ piece, index }) => {
           </div>
           <div className='flex flex-col flex-grow'>
             <p className='font-roboto font-medium'>{piece.title}</p>
-            <p className='font-roboto text-sm'>{piece.size}</p>
+            <p className='font-roboto text-sm'>{piece.status}</p>
           </div>
         </div>
       )}

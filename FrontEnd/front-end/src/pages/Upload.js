@@ -3,49 +3,33 @@ import Card from "../components/Card";
 import { BACKEND_URL } from "../constants";
 
 function Upload() {
-    const [uploadMessage, setUploadMessage] = useState("");
+    const [pieces, setPieces] = useState([]);
     const [error, setError] = useState("");
 
     useEffect(() => {
-        fetch(`${BACKEND_URL}/upload`)
+        fetch(`${BACKEND_URL}/get_links`)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Network response was not ok");
                 }
                 return response.json();
             })
-            .then((data) => setUploadMessage(data.message))
+            .then((data) => setPieces(data.links.map((link, index) => ({ ...link, id: String(index) }))))
             .catch((error) => setError(error.message));
     }, []);
 
-    // Aixo es temporal mentre no tinguem crides a la BBDD
-    const pieces = [{
-            title: "Youtube Song Example",
-            size: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
-        },
-        {
-            title: "Youtube Song Example",
-            size: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
-        },
-        {
-            title: "Youtube Song Example",
-            size: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
-        }, {
-            title: "Youtube Song Example",
-            size: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
-        }, {
-            title: "Youtube Song Example",
-            size: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
-        }, {
-            title: "Youtube Song Example",
-            size: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
-        }
-    ].map((piece, index) => ({ ...piece, id: String(index) }));;
+    const updatePieceStatus = (link, status) => {
+        setPieces((prevPieces) => 
+            prevPieces.map((piece) =>
+                piece.link === link ? { ...piece, status: status } : piece
+            )
+        );
+    };
 
     return (
         <div className="flex justify-center items-center">
-            <div className=" w-full">
-                <Card pieces={pieces} />
+            <div className="w-full">
+                <Card pieces={pieces} updatePieceStatus={updatePieceStatus} />
             </div>
         </div>
     );

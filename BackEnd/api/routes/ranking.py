@@ -3,6 +3,7 @@ from functools import wraps
 from db.db import get_db
 from routes.auth import login_required
 import re
+import threading
 
 from pytube import YouTube
 from piano_transcription_inference import PianoTranscription, sample_rate, load_audio
@@ -164,97 +165,82 @@ def generate_new_exploration(modified_model, giant_midi_features):
 ######################################################################
 
 # @login_required
+def process_link(link, youtube_id):
+    audio_path, midi_path = process_youtube_video(link)
+    pitch_sets = extract_pitch_sets(midi_path)
+    complexity = lz_complexity(pitch_sets)
+    entropy_value = compute_pitch_entropy(pitch_sets)
+    
+    features = {
+        'complexity': complexity,
+        'entropy': entropy_value
+    }
+
+    # Guardar las características en features.json
+    if os.path.exists('/api/routes/tmp/features.json'):
+        with open('/api/routes/tmp/features.json', 'r') as f:
+            all_features = json.load(f)
+    else:
+        all_features = {}
+
+    all_features[youtube_id] = features
+
+    with open('/api/routes/tmp/features.json', 'w') as f:
+        json.dump(all_features, f)
+
+    # Eliminar archivos temporales
+    os.remove(audio_path)
+    os.remove(midi_path)
+
+    # Actualizar estado a 'finished' en status.json
+    if os.path.exists('/api/routes/tmp/status.json'):
+        with open('/api/routes/tmp/status.json', 'r') as f:
+            status_dict = json.load(f)
+    else:
+        status_dict = {}
+
+    status_dict[link] = 'finished'
+
+    with open('/api/routes/tmp/status.json', 'w') as f:
+        json.dump(status_dict, f)
+
+### Lógica para subir un enlace
 def upload_link():
     if request.method == 'POST':
-        # Extract JSON data from request body
-        print("checkpoint1")
         data = request.json
-        print(data)
-
-        # Check if 'link' and 'ranking' are present in the JSON data
         if 'link' in data:
             link = data['link']
-
-            print(f"link: {link}")
 
             if "youtube" in link:
                 pattern = r'(?:v=|\/)([0-9A-Za-z_-]{11}).*'
                 match = re.search(pattern, link)
 
-                ### TESTING DOWNLOAD AND TRANSCRIPTION OF YOUTUBE VIDEO
-                # Define a status dictionary
-                status_dict = {}
+                if match:
+                    youtube_id = match.group(1)
 
-                youtube_id = match.group(1)
-                #youtube_url = f"https://www.youtube.com/watch?v={youtube_id}"
+                    if 'temp_links' not in session:
+                        session['temp_links'] = []
 
-                print("checkpoint2")
+                    temp_links = session['temp_links']
+                    temp_links.append({
+                        'link': youtube_id,
+                        'ranking': 1
+                    })
+                    session['temp_links'] = temp_links
 
-                audio_path, midi_path = process_youtube_video(link)
+                    # Iniciar procesamiento en segundo plano
+                    threading.Thread(target=process_link, args=(link, youtube_id)).start()
 
-                print("checkpoint3")
-                ##############################################
+                    return jsonify({'message': 'Enlace está siendo procesado', 'link': youtube_id, 'status': 'processing'}), 202
 
-                ### TESTING COMPUTATION OF FEATURES
-                pitch_sets = extract_pitch_sets(midi_path)
-                complexity = lz_complexity(pitch_sets)
-                entropy = compute_pitch_entropy(pitch_sets) 
-
-                features = {
-                    'complexity': complexity,
-                    'entropy': entropy
-                }
-
-                # Check if 'features.json' exists, if not create an empty dictionary
-                if os.path.exists('/api/routes/tmp/features.json'):
-                    with open('/api/routes/tmp/features.json', 'r') as f:
-                        all_features = json.load(f)
                 else:
-                    all_features = {}
-
-                # Add the features of the current MIDI file to the dictionary
-                all_features[youtube_id] = features
-
-                # Write the updated dictionary back to 'features.json'
-                with open('/api/routes/tmp/features.json', 'w') as f:
-                    json.dump(all_features, f)
-                
-                # After writing to the json file, delete the audio and midi files
-                os.remove(audio_path)
-                os.remove(midi_path)
-
-                # Write the status to a file that the front-end can check
-                if os.path.exists('/api/routes/tmp/status.json'):
-                    with open('/api/routes/tmp/status.json', 'r') as f:
-                        status_dict = json.load(f)
-                else:
-                    status_dict = {}
-
-                status_dict[link] = 'finished'
-
-                with open('/api/routes/tmp/status.json', 'w') as f:
-                    json.dump(status_dict, f)
-                ##############################################
-
-            # elif "imslp" in link:
-
-            if 'temp_links' not in session:
-                session['temp_links'] = []
-
-            temp_links = session['temp_links']
-            temp_links.append({
-                'link': youtube_id,
-                'ranking': 1 # TODO ADD RANKING INTO JSON WHEN GENERATING RANKING
-            })
-            session['temp_links'] = temp_links
-
-            print(session['temp_links'])
-
-            return 'Link submitted successfully'
+                    return jsonify({"error": "Enlace de YouTube inválido"}), 400
+            else:
+                return jsonify({"error": "Formato de enlace inválido"}), 400
         else:
-            return 'Invalid JSON data: "link" and "ranking" fields are required', 400
-    else:
-        return 'Only POST method is supported for this endpoint', 405
+            return jsonify({"error": "Falta 'link' en los datos de la solicitud"}), 400
+
+    return 'Sólo se admite el método POST para este punto final', 405
 
 # @login_required
 def modify_link():
