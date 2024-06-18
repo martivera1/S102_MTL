@@ -19,6 +19,7 @@ import numpy as np
 from collections import Counter
 from scipy.stats import entropy
 import pickle
+from sklearn.impute import SimpleImputer
 
 ### CODE TO DOWNLOAND VIDEO AND EXTRACT AUDIO AND TRANSCRIBE IT TO MIDI
 def process_youtube_video(url):
@@ -152,16 +153,30 @@ def prepare_dataset_giantmidi(data):
 
 def partial_fit(new_data):
     X_partial_train, y_partial_train = prepare_dataset(new_data)
-    loaded_model = pickle.load(open("finalized_model.sav", 'rb'))
+    loaded_model = pickle.load(open("/api/routes/finalized_model.sav", 'rb'))
     modified_model = loaded_model.partial_fit(
         X_partial_train, y_partial_train, classes=[ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10], sample_weight=7000/len(y_partial_train)
     )
     return modified_model
 
 def generate_new_exploration(modified_model, giant_midi_features):
-    X = prepare_dataset_giantmidi(giant_midi_features)
-    predictions = modified_model.predict(X)
+    #X = prepare_dataset_giantmidi(giant_midi_features)
+    predictions = modified_model.predict(giant_midi_features)
     return {k: int(v) for k, v in zip(giant_midi_features.keys(), predictions)}
+
+def load_data(file_path):
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+
+    new_data = []
+    for youtube_id, features in data.items():
+        new_data.append({
+            'complexity': features['complexity'],
+            'entropy': features['entropy'],
+            'grade': features['grade']
+        })
+
+    return new_data
 ######################################################################
 
 # @login_required
@@ -223,8 +238,7 @@ def upload_link():
 
                     temp_links = session['temp_links']
                     temp_links.append({
-                        'link': youtube_id,
-                        'ranking': 1
+                        'link': youtube_id
                     })
                     session['temp_links'] = temp_links
 
@@ -306,12 +320,10 @@ def delete_link():
 # @login_required
 def generate_ranking():
     if request.method == 'POST':
-        # Check if 'temp_links' is present in the session
-        if 'temp_links' not in session:
-            return jsonify({'error': 'No links to generate ranking'}), 404
-
-        # Extract JSON data from request body
+        # Check if 'links' is present in the request
         data = request.json
+        if 'links' not in data:
+            return jsonify({'error': 'No links to generate ranking'}), 404
 
         # Extract required parameters from JSON data
         name = data.get('name')
@@ -320,55 +332,59 @@ def generate_ranking():
         user_id = session.get('user_id')
 
         # Insert the ranking into the database
-        db = get_db()
-        cursor = db.cursor()
-        query = """
-        INSERT INTO Ranking (name, star, description, user_id, obra_id)
-        VALUES (%s, %s, %s, %s)
-        """     
-        cursor.execute(query, (name, star, description, user_id, obra_id))
-        db.commit()
+        #db = get_db()
+        #cursor = db.cursor()
+        #query = """
+        #INSERT INTO Ranking (name, star, description, user_id, obra_id)
+        #VALUES (%s, %s, %s, %s)
+        #"""     
+        #cursor.execute(query, (name, star, description, user_id, obra_id))
+        #db.commit()
 
         ### TESTING PARTIAL FIT OF THE MODEL 
-        link= data.get('link')
-        grade = data.get('grade')
+        links= data['links']
 
         pattern = r'(?:v=|\/)([0-9A-Za-z_-]{11}).*'
-        match = re.search(pattern, link)
-        youtube_id = match.group(1)
 
         # Load the features of the MIDI files
         with open('/api/routes/tmp/features.json', 'r') as f:
             all_features = json.load(f)
 
-        #Add the ranking feature into json file
-        features = {
-                    'grade': grade 
-                }
-        
-        # Add the features of the current MIDI file to the dictionary
-        all_features[youtube_id] = features 
+        for link_data in links:
+            link = link_data['link']
+            grade = link_data['grade']
+            match = re.search(pattern, link)
+            if match:
+                youtube_id = match.group(1)
+
+                # If the youtube_id is already in all_features, update it with the grade
+                if youtube_id in all_features:
+                    all_features[youtube_id]['grade'] = grade
+                else:
+                    # If the youtube_id is not in all_features, add it with the grade
+                    all_features[youtube_id] = {'grade': grade}
 
         # Write the updated dictionary back to 'features.json'
         with open('/api/routes/tmp/features.json', 'w') as f:
             json.dump(all_features, f)
 
+        new_data = load_data('/api/routes/tmp/features.json')
 
         # Prepare the dataset
-        modified_model = partial_fit(all_features)
+        modified_model = partial_fit(new_data)
 
         #TEST IMPORTING FEATURES FROM JSON FILE
-        with open('giantmidi_features.json') as f: 
-            giant_midi_features = json.load(f)
-        exploration_ranking = generate_new_exploration(modified_model, giant_midi_features)
+        #with open('giantmidi_features.json') as f: 
+        #    giant_midi_features = json.load(f)
+        #exploration_ranking = generate_new_exploration(modified_model, giant_midi_features)
 
         #TEST IMPORTING FEATURES FROM DATABASE (HAURIEM DE FER SERVIR AIXO PER ANAR BÉ), PERO SINO FUNCIONA TIREM DE JSON A LA GUARRA
         db= get_db()
         cursor = db.cursor()
-        cursor.execute("SELECT name, atr_complexity, atr_entropy FROM Obra")     
+        cursor.execute("SELECT atr_complexity, atr_entropy FROM Obra")     
         results= cursor.fetchall()
-        giant_midi_features = {row[0]: {'complexity': row[1], 'entropy': row[2]} for row in results}
-
+        giant_midi_features = np.array(results)#{row[0]: {'complexity': row[1], 'entropy': row[2]} for row in results}
+        exploration_ranking = generate_new_exploration(modified_model, giant_midi_features)
         #After generating the new exploration, delete the features.json file
         os.remove('/api/routes/tmp/features.json')
 
