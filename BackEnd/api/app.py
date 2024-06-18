@@ -16,10 +16,23 @@ from routes.users import init_app as init_users
 from routes.auth import login_required
 
 app = Flask(__name__, static_folder='../Frontend/front-end/build', static_url_path='/')
-CORS(app, resources={r"/*": {"origins": "https://www.pianomusic.com:3000"}})
+app.secret_key = 'pianoclassification'
+CORS(app, resources={r"/*": {"origins": "https://www.pianomusic.com:3000", "supports_credentials": True}})
+
+# Configure session to use file system (JSON) storage
+app.config.from_mapping(
+    SESSION_TYPE='filesystem',
+    SESSION_FILE_DIR=os.path.join(app.instance_path, 'sessions'),
+    SESSION_FILE_THRESHOLD=100,
+)
+
+# Ensure the session directory exists
+if not os.path.exists(app.config['SESSION_FILE_DIR']):
+    os.makedirs(app.config['SESSION_FILE_DIR'])
 
 # Load configuration from the config file
 app.config.from_object('config.Config')
+logging.basicConfig(level=logging.DEBUG)
 
 Session(app)
 
