@@ -109,10 +109,23 @@ SET
 DELETE FROM Video
 WHERE id_video IN (
     SELECT id_obra
-    FROM obra
+    FROM Obra
     WHERE atr_complexity IS NULL
        OR atr_entropy IS NULL
 );
 DELETE FROM Obra
 WHERE atr_complexity IS NULL
    OR atr_entropy IS NULL;
+
+USE pianoclassification;
+INSERT INTO Users (id_user, email) VALUES (11, 'joanpetit@gmail.com');
+INSERT INTO Users (id_user, email) VALUES (12, 'mozzart@gmail.com');
+INSERT INTO Users (id_user, email) VALUES (13, 'pedrosanchez@hotmail.com');
+
+LOAD DATA LOCAL INFILE '/api/db/pre_rankings.csv'
+INTO TABLE Ranking
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS
+(id_ranking, name, star, description, user_id, obra_id);

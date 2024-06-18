@@ -1,5 +1,5 @@
 import React from 'react';
-import HttpImage from '../static/images/http_icon.png';
+import HttpImage from '../static/images/youtube_logo.webp';
 import { Draggable } from 'react-beautiful-dnd';
 
 const ListedPiece = ({ piece, index }) => {
