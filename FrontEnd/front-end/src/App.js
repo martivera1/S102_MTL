@@ -5,6 +5,7 @@ import Upload from "./pages/Upload";
 import "./static/styles/App.css";
 import Header from "./components/Header";
 import Login from "./pages/Login";
+import Ranking from "./pages/Ranking";  // Import Ranking component
 
 function App() {
     return (
@@ -16,10 +17,8 @@ function App() {
                     <Route path="/home" element={<Home />} />
                     <Route path="/upload" element={<Upload />} />
                     <Route path="/login" element={<Login />} />
-                    {/* Add other routes here */}
+                    <Route path="/ranking/:rankingId" element={<Ranking />} />
                 </Routes>
-                
-                {/* Footer Component Here */}
             </div>
         </Router>
     );

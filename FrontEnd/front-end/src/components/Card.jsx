@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ListedPiece from './ListedPiece';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { BACKEND_URL } from '../constants';
+import { Navigate } from 'react-router-dom'; 
 
 const Card = () => {
   const [levels, setLevels] = useState(Array.from({ length: 10 }, () => []));
@@ -9,6 +10,7 @@ const Card = () => {
   const [pieces, setPieces] = useState([]);
   const [rankingName, setRankingName] = useState('');
   const [rankingDescription, setRankingDescription] = useState('');
+  const [rankingId, setRankingId] = useState(null);
 
   useEffect(() => {
     const distributedPieces = levels.map((level, index) => {
@@ -24,7 +26,7 @@ const Card = () => {
     const destLevel = parseInt(result.destination.droppableId);
 
     if (sourceLevel === destLevel && result.source.index === result.destination.index) {
-      return; // No hacer nada si se suelta en la misma posición
+      return;
     }
 
     const sourceItems = Array.from(levels[sourceLevel]);
@@ -93,6 +95,13 @@ const Card = () => {
     }, []);
 
     try {
+      const rankedLinks = levels.reduce((acc, level, index) => {
+        level.forEach(piece => {
+          acc.push({ link: piece.link, grade: index + 1 });
+        });
+        return acc;
+      }, []);
+
       const response = await fetch(`${BACKEND_URL}/generate_ranking`, {
         method: 'POST',
         headers: {
@@ -113,11 +122,18 @@ const Card = () => {
       const data = await response.json();
       alert('Ranking generated successfully!');
 
+      setRankingId(data.ranking_id);
+
     } catch (error) {
       console.error('Error generating ranking:', error);
       alert('Failed to generate ranking');
     }
   };
+
+  if (rankingId) {
+    return <Navigate to={`/ranking/${rankingId}`} />;
+  }
+
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>

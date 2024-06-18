@@ -420,7 +420,8 @@ def generate_ranking():
 
         ##############################################
 
-        return jsonify({'message': 'Ranking generated successfully'}), 200
+        return jsonify({'message': 'Ranking generated successfully',
+            'ranking_id': ranking_id}), 200
     
     else:
         return jsonify({'error': 'Method not allowed'}), 405
@@ -518,6 +519,42 @@ def get_rankings():
     
     return jsonify(result)
 
+def get_ranking_results(ranking_id):
+    db = get_db()
+    cursor = db.cursor()
+
+    # Fetch up to 10 obras per star level for the given ranking_id
+    query = """
+    SELECT o.id_obra, o.name, o.epoca, o.compositor, o.piano_roll, o.atr_complexity, o.atr_entropy, o.atr_duration, o.time, r.star
+    FROM Obra o
+    JOIN Ranking r ON o.id_obra = r.obra_id
+    WHERE r.id_ranking = %s
+    ORDER BY r.star DESC, o.id_obra
+    """
+    cursor.execute(query, (ranking_id,))
+    obras = cursor.fetchall()
+
+    result = {}
+    for obra in obras:
+        star_level = obra[9]  # Assuming 'star' column index in Ranking table is 9 (adjust if needed)
+        if star_level <= 10:  # Only include star levels from 1 to 10
+            if star_level not in result:
+                result[star_level] = []
+            if len(result[star_level]) < 10:  # Limit to 10 obras per star level
+                result[star_level].append({
+                    'id_obra': obra[0],
+                    'name': obra[1],
+                    'epoca': obra[2],
+                    'compositor': obra[3],
+                    'piano_roll': obra[4],
+                    'atr_complexity': obra[5],
+                    'atr_entropy': obra[6],
+                    'atr_duration': obra[7],
+                    'time': obra[8]
+                })
+
+    return jsonify(result)
+
 
 def get_links():
     return jsonify([])
@@ -531,3 +568,5 @@ def init_app(app):
     app.route('/results', methods=['GET'])(get_results)
     app.route('/get_links', methods=['GET'])(get_links)
     app.route('/get_rankings', methods=['GET'])(get_rankings)
+    app.route('/get_ranking_results/<int:ranking_id>', methods=['GET'])(get_ranking_results)
+    

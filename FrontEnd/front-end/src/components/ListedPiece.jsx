@@ -3,6 +3,12 @@ import HttpImage from '../static/images/http_icon.png';
 import { Draggable } from 'react-beautiful-dnd';
 
 const ListedPiece = ({ piece, index }) => {
+  const getStatusColorClass = () => {
+    return piece.status === 'processing...'
+      ? 'text-red-500'
+      : 'text-green-500';
+  };
+
   return (
     <Draggable draggableId={piece.id} index={index}>
       {(provided) => (
@@ -12,7 +18,7 @@ const ListedPiece = ({ piece, index }) => {
           </div>
           <div className='flex flex-col flex-grow'>
             <p className='font-roboto font-medium'>{piece.title}</p>
-            <p className='font-roboto text-sm'>{piece.status}</p>
+            <p className={`font-roboto text-sm ${getStatusColorClass()}`}>{piece.status}</p>
           </div>
         </div>
       )}

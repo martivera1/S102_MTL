@@ -22,7 +22,7 @@ function Home() {
         <div className="flex flex-wrap justify-center items-center">
             {rankings.map((ranking, index) => (
                 <div key={index} className="mt-6 mx-4">
-                    <Ranking ranking={ranking} />
+                    <Ranking ranking={ranking}/>
                 </div>
             ))}    
         </div>
