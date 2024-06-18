@@ -9,7 +9,6 @@ const Header = () => {
   const navigate = useNavigate();
   const user = useAuth();
 
-  // Log user email if available
   if (user) {
     console.log("email from header: " + user);
   }
@@ -18,29 +17,6 @@ const Header = () => {
   const headerTitle = isHome ? 'PRE-COMPUTED RANKINGS' : 'BUILD YOUR RANK';
   const buttonText = isHome ? 'Build Ranking' : 'Home';
   const buttonLink = isHome ? '/upload' : '/home';
-
-  const handleLogout = async () => {
-    try {
-      const response = await fetch(`${BACKEND_URL}/logout`, {
-        method: 'GET',
-        credentials: 'include',  // Include cookies for authentication
-        headers: {
-          'Content-Type': 'application/json'
-          // Add any other headers if needed
-        }
-      });
-      if (response.ok) {
-        console.log('Logout successful');
-        navigate('/');
-      } else {
-        console.error('Logout failed');
-        // Handle failed logout scenario
-      }
-    } catch (error) {
-      console.error('Error during logout:', error);
-      // Handle error scenario
-    }
-  };
 
   return (
     <div className='sticky top-0 z-50'> 
@@ -53,29 +29,30 @@ const Header = () => {
         <div className='flex-1 text-center'>
           <h1 className='font-semibold text-xl'>{headerTitle}</h1>
         </div>
-        <div className='flex flex-initial'>
+        <div className='flex flex-initial items-center'>
           {user ? (
-            <div className='flex items-center'>
-              <span className='text-blue-600 font-roboto font-semibold cursor-pointer text-lg mr-4'>
-                Logged in as {user}
-              </span>
-              <button
-                className='text-blue-600 font-roboto font-semibold mr-8 cursor-pointer text-lg'
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
-            </div>
+            <>
+              <div className='flex items-center flex-col mr-4'>
+                <div className='font-roboto font-medium text-md'>
+                  Logged in as:
+                </div>
+                <div className='text-gray-800 text-md'>
+                  {user}
+                </div>
+              </div>
+              {isHome && (
+                <Link to={buttonLink}>
+                  <button className='text-blue-600 font-roboto font-semibold mr-8 cursor-pointer text-lg'>
+                    {buttonText}
+                  </button>
+                </Link>
+              )}
+            </>
           ) : (
             <Link to={"/login"}>
               <div className='text-blue-600 font-roboto font-semibold cursor-pointer text-lg mr-4'>Login</div>
             </Link>
           )}
-          <Link to={buttonLink}>
-            <button className='text-blue-600 font-roboto font-semibold mr-8 cursor-pointer text-lg'>
-              {buttonText}
-            </button>
-          </Link>
         </div>
       </div>
       <div className='h-[3px] bg-blue-600 w-full top-14'></div>
