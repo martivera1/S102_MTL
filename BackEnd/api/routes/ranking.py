@@ -12,6 +12,7 @@ import torch
 import time
 import os
 import tempfile
+import logging
 
 import json
 import pretty_midi
@@ -446,9 +447,12 @@ def get_user_rankings():
 
     result = []
     for ranking in rankings:
+        youtube_id = ranking[6]
+        video_name = get_youtube_video_name(youtube_id)
+
         result.append({
             'ranking': ranking[0],
-            'name': ranking[1],
+            'name': video_name,
             'star': ranking[2],
             'description': ranking[3],
             'email': ranking[4],
@@ -456,6 +460,13 @@ def get_user_rankings():
         })
     
     return jsonify(result)
+
+def get_youtube_video_name(video_id):
+    try:
+        return f'https://www.youtube.com/watch?v={video_id}'
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return "Unknown Title"
 
 # @login_required
 def get_results():
@@ -541,9 +552,10 @@ def get_ranking_results(ranking_id):
             if star_level not in result:
                 result[star_level] = []
             if len(result[star_level]) < 10:  # Limit to 10 obras per star level
+                name = get_youtube_video_name(obra[1])
                 result[star_level].append({
                     'id_obra': obra[0],
-                    'name': obra[1],
+                    'name': name,
                     'epoca': obra[2],
                     'compositor': obra[3],
                     'piano_roll': obra[4],

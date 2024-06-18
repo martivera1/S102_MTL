@@ -32,7 +32,6 @@ if not os.path.exists(app.config['SESSION_FILE_DIR']):
 
 # Load configuration from the config file
 app.config.from_object('config.Config')
-logging.basicConfig(level=logging.DEBUG)
 
 Session(app)
 
@@ -44,7 +43,8 @@ init_ranking(app)
 init_users(app)
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
+logging.getLogger('pytube').setLevel(logging.WARNING)
 
 @app.route('/home', methods=['GET'])
 # @login_required
