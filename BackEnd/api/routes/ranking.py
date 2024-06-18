@@ -323,14 +323,16 @@ def generate_ranking():
     if request.method == 'POST':
         # Check if 'links' is present in the request
         data = request.json
+
         if 'links' not in data:
+            
             return jsonify({'error': 'No links to generate ranking'}), 404
 
         # Extract required parameters from JSON data
         name = data.get('name')
         star = data.get('star')
         description = data.get('description')
-        user_id = session.get('user_id')
+        user_id = data.get('user')
 
         # Insert the ranking into the database
         #db = get_db()
@@ -396,18 +398,19 @@ def generate_ranking():
         song_predictions = {song_id: int(prediction) for song_id, prediction in zip(song_ids, predictions)}
 
         # Generate a unique ranking_id
-        ranking_id = uuid.uuid4().int & (1<<32)-1  # This will generate a unique 32-bit integer
+        random_uuid_int = uuid.uuid4().int
+        ranking_id = (random_uuid_int % 1000) + 1
 
         # Prepare the SQL query
         sql_query = """
-        INSERT INTO Ranking (id_ranking, star, obra_id)
-        VALUES (%s, %s, %s)
+        INSERT INTO Ranking (id_ranking, name, star, description, user_id, obra_id)
+        VALUES (%s, %s, %s, %s, %s, %s)
         """
 
         # Loop through the song_predictions dictionary
         for song_id, prediction in song_predictions.items():
             # Execute the query
-            cursor.execute(sql_query, (ranking_id, prediction, song_id))
+            cursor.execute(sql_query, (ranking_id, name, prediction, description, user_id, song_id))
 
         # Commit the changes
         db.commit()
@@ -417,7 +420,8 @@ def generate_ranking():
 
         ##############################################
 
-        return jsonify({'message': 'Ranking generated successfully'}),200
+        return jsonify({'message': 'Ranking generated successfully'}), 200
+    
     else:
         return jsonify({'error': 'Method not allowed'}), 405
 
@@ -482,6 +486,39 @@ def get_results():
     
     return jsonify(result)
 
+def get_rankings():
+    db = get_db()
+    cursor = db.cursor()
+    query = """
+    SELECT 
+        r.id_ranking, 
+        MAX(r.name) as name, 
+        MAX(r.star) as star, 
+        MAX(r.description) as description, 
+        MAX(u.email) as username
+    FROM 
+        Ranking r
+    LEFT JOIN 
+        Users u ON r.user_id = u.id_user
+    GROUP BY 
+        r.id_ranking;
+    """
+    cursor.execute(query)
+    rankings = cursor.fetchall()
+
+    result = []
+    for ranking in rankings:
+        result.append({
+            'id': ranking[0],
+            'name': ranking[1] if ranking[1] else "",
+            'star': ranking[2],
+            'description': ranking[3] if ranking[3] else "",
+            'username': ranking[4] if ranking[4] else "Unknown"
+        })
+    
+    return jsonify(result)
+
+
 def get_links():
     return jsonify([])
 
@@ -493,3 +530,4 @@ def init_app(app):
     app.route('/myrankings', methods=['GET'])(get_user_rankings)
     app.route('/results', methods=['GET'])(get_results)
     app.route('/get_links', methods=['GET'])(get_links)
+    app.route('/get_rankings', methods=['GET'])(get_rankings)

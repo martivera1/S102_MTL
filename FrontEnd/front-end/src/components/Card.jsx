@@ -7,6 +7,8 @@ const Card = () => {
   const [levels, setLevels] = useState(Array.from({ length: 10 }, () => []));
   const [link, setLink] = useState('');
   const [pieces, setPieces] = useState([]);
+  const [rankingName, setRankingName] = useState('');
+  const [rankingDescription, setRankingDescription] = useState('');
 
   useEffect(() => {
     const distributedPieces = levels.map((level, index) => {
@@ -96,7 +98,12 @@ const Card = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ links: rankedLinks, user: 1}),
+        body: JSON.stringify({
+          links: rankedLinks,
+          user: 1,
+          name: rankingName,
+          description: rankingDescription,
+        }),
       });
 
       if (!response.ok) {
@@ -130,6 +137,19 @@ const Card = () => {
             Upload Video
           </button>
         </div>
+        <input
+          type="text"
+          placeholder='Ranking Name'
+          className='bg-grey mt-[2vh] bg-slate-100 px-3 py-5 rounded-md mx-8 mb-[2vh] h-8 outline-none'
+          value={rankingName}
+          onChange={(e) => setRankingName(e.target.value)}
+        />
+        <textarea
+          placeholder='Ranking Description'
+          className='bg-grey mt-[2vh] bg-slate-100 px-3 py-5 rounded-md mx-8 mb-[2vh] h-24 outline-none'
+          value={rankingDescription}
+          onChange={(e) => setRankingDescription(e.target.value)}
+        />
         <div className='align-middle justify-center bg-slate-100 overflow-y-auto max-h-[40vh] mb-[3vh] mx-8 rounded-lg'>
           {levels.map((level, levelIndex) => (
             <Droppable key={levelIndex} droppableId={String(levelIndex)}>

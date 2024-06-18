@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Ranking = ({ ranking }) => {
-  const { title, description, userpic, username, stars } = ranking;
+  const { name, description, userpic, username, stars } = ranking;
 
   const starElements = [];
   for (let i = 0; i < stars; i++) {
@@ -9,8 +9,8 @@ const Ranking = ({ ranking }) => {
   }
 
   return (
-    <div className='flex justify-center items-center bg-white flex-col text-center p-4 rounded-2xl shadow-md  hover:scale-105 hover:cursor-pointer'>
-      <h1 className='text-xl font-bold'>{title}</h1>
+    <div className='flex justify-center items-center bg-white flex-col text-center p-4 rounded-2xl shadow-md hover:scale-105 hover:cursor-pointer'>
+      <h1 className='text-xl font-bold'>{name}</h1>
       <p className="text-right text-gray-500">by {username}</p>
       <div className='bg-slate-200 w-full rounded-xl mt-1' style={{ height: '2px' }}></div>
       <p className='mt-2 w-full max-w-sm bg-slate-100 p-1 min-w-[380px] min-h-[80px]' style={{ overflowWrap: 'break-word' }}>
