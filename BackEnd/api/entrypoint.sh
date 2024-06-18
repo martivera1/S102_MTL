@@ -8,10 +8,10 @@ done
 # Create the database if it doesn't exist
 mysql -h"$MYSQL_HOST" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;"
 
-# Import the SQL script to create tables if the database is empty
-if [ ! -f /api/db_initialized ]; then
+# Check if the database is empty and import the SQL script if it is
+TABLE_COUNT=$(mysql -h"$MYSQL_HOST" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -D "$MYSQL_DATABASE" -e "SHOW TABLES;" | wc -l)
+if [ "$TABLE_COUNT" -eq 0 ]; then
     mysql -h"$MYSQL_HOST" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" < /api/db/pianoclassification.sql
-    touch /api/db_initialized
 fi
 
 # Export necessary environment variables

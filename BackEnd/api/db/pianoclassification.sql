@@ -1,6 +1,6 @@
 set global local_infile=1;
-DROP SCHEMA IF EXISTS pianoclassifications;
-CREATE DATABASE IF NOT EXISTS pianoclassifications
+DROP SCHEMA IF EXISTS pianoclassification;
+CREATE DATABASE IF NOT EXISTS pianoclassification
 DEFAULT CHARACTER SET 'utf8mb4'
 DEFAULT COLLATE 'utf8mb4_general_ci';
 
@@ -92,27 +92,27 @@ INSERT IGNORE INTO Partitura( name)
 SELECT DISTINCT music FROM ttm;
 -- INSERT IGNORE INTO Partitura (name)
 -- SELECT DISTINCT name FROM Obra
-
+USE pianoclassification;
 LOAD DATA LOCAL INFILE '/api/db/features.csv'
 INTO TABLE temp_obra
 FIELDS TERMINATED BY ',' 
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS
 (name, lz_complexity, pitch_entropy, duration);
-UPDATE obra o
+UPDATE Obra o
 INNER JOIN temp_obra t ON o.name = t.name
 SET 
     o.atr_complexity = t.lz_complexity,
     o.atr_entropy = t.pitch_entropy,
     o.atr_duration = t.duration;
 
-DELETE FROM video
+DELETE FROM Video
 WHERE id_video IN (
     SELECT id_obra
     FROM obra
     WHERE atr_complexity IS NULL
        OR atr_entropy IS NULL
 );
-DELETE FROM obra
+DELETE FROM Obra
 WHERE atr_complexity IS NULL
    OR atr_entropy IS NULL;

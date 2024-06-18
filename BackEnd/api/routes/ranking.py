@@ -20,6 +20,7 @@ from collections import Counter
 from scipy.stats import entropy
 import pickle
 from sklearn.impute import SimpleImputer
+import uuid
 
 ### CODE TO DOWNLOAND VIDEO AND EXTRACT AUDIO AND TRANSCRIBE IT TO MIDI
 def process_youtube_video(url):
@@ -162,7 +163,7 @@ def partial_fit(new_data):
 def generate_new_exploration(modified_model, giant_midi_features):
     #X = prepare_dataset_giantmidi(giant_midi_features)
     predictions = modified_model.predict(giant_midi_features)
-    return {k: int(v) for k, v in zip(giant_midi_features.keys(), predictions)}
+    return predictions
 
 def load_data(file_path):
     with open(file_path, 'r') as f:
@@ -381,16 +382,42 @@ def generate_ranking():
         #TEST IMPORTING FEATURES FROM DATABASE (HAURIEM DE FER SERVIR AIXO PER ANAR BÉ), PERO SINO FUNCIONA TIREM DE JSON A LA GUARRA
         db= get_db()
         cursor = db.cursor()
-        cursor.execute("SELECT atr_complexity, atr_entropy FROM Obra")     
-        results= cursor.fetchall()
-        giant_midi_features = np.array(results)#{row[0]: {'complexity': row[1], 'entropy': row[2]} for row in results}
-        exploration_ranking = generate_new_exploration(modified_model, giant_midi_features)
+        cursor.execute("SELECT id_obra, atr_complexity, atr_entropy FROM Obra where atr_complexity is not null and atr_entropy is not null;")     
+        results = cursor.fetchall()
+
+        # Separate the song identifiers and features
+        song_ids = [row[0] for row in results]
+        features = np.array([row[1:] for row in results])
+
+        # Generate predictions
+        predictions = generate_new_exploration(modified_model, features)
+
+        # Create a dictionary with song identifiers and predictions
+        song_predictions = {song_id: int(prediction) for song_id, prediction in zip(song_ids, predictions)}
+
+        # Generate a unique ranking_id
+        ranking_id = uuid.uuid4().int & (1<<32)-1  # This will generate a unique 32-bit integer
+
+        # Prepare the SQL query
+        sql_query = """
+        INSERT INTO Ranking (id_ranking, star, obra_id)
+        VALUES (%s, %s, %s)
+        """
+
+        # Loop through the song_predictions dictionary
+        for song_id, prediction in song_predictions.items():
+            # Execute the query
+            cursor.execute(sql_query, (ranking_id, prediction, song_id))
+
+        # Commit the changes
+        db.commit()
+        
         #After generating the new exploration, delete the features.json file
         os.remove('/api/routes/tmp/features.json')
 
         ##############################################
 
-        return jsonify({'message': 'Ranking generated successfully'})
+        return jsonify({'message': 'Ranking generated successfully'}),200
     else:
         return jsonify({'error': 'Method not allowed'}), 405
 
