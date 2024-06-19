@@ -40,6 +40,20 @@ We have utilized the Giant MIDI dataset for our generated rankings. GiantMIDI-Pi
       SESSION_USE_SIGNER = True
 
 
+  /*************************************/
+
+If error {exec entrypoint.sh doesn't exist} change entrypoint file format from CRLF to LF
+
+To run the app:
+    
+    $ docker-compose build
+    $ docker-compose up
+
+URL: [localhost:](http://localhost:3000/)
+
+/*************************************/
+
+
 
 
 
