@@ -11,8 +11,8 @@ Utilizing machine learning algorithms, our system will select some piano scores 
 By integrating technology with musical exploration, our goal is to empower users in discovering piano pieces and enriching their music education experience.
 
 # Data Source
-We have utilized the TROMPA-MER dataset for our generated rankings. TROMPA-MER is an open dataset designed to support research in Music Emotion Recognition (MER).
-(https://github.com/juansgomez87/vis-mtg-mer)
+We have utilized the Giant MIDI dataset for our generated rankings. GiantMIDI-Piano is a classical piano MIDI dataset contains 10,855 MIDI files of 2,786 composers. The curated subset by constraining composer surnames contains 7,236 MIDI files of 1,787 composers. GiantMIDI-Piano are transcribed from live recordings with a high-resolution piano transcription system.
+(https://github.com/bytedance/GiantMIDI-Piano)
 
 # Start Application
 -Go to .\certs 
