@@ -411,7 +411,7 @@ def generate_ranking():
         # Loop through the song_predictions dictionary
         for song_id, prediction in song_predictions.items():
             # Execute the query
-            cursor.execute(sql_query, (ranking_id, name, prediction, description, user_id, song_id))
+            cursor.execute(sql_query, (ranking_id, name, prediction, description, 14, song_id))
 
         # Commit the changes
         db.commit()
